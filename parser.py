@@ -6,6 +6,7 @@ from tokens import *
 from rules import *
 
 code = """
+		min:Int (a:Int, b:Int);
 		max:Int (a:Int, b:Int) {
 			if a > b {
 				return a;

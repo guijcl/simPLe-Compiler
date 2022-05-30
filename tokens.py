@@ -24,6 +24,7 @@ tokens = (
 	# logic
 	'AND',
 	'OR',
+	'NOT',
 
 	# comparations
 	'EQUAL',
@@ -45,18 +46,22 @@ tokens = (
 	'RBRACKET',
 	'LPAREN',
 	'RPAREN',
+	'LBRACKET_S',
+	'RBRACKET_S',
 
 	# types
 	'VOID',
 	'BOOL',
 	'INTEGER',
+	'FLOAT',
 	'ARRAY',
 	'STRING',
 
 	# types names
-	'TVOIDE',
+	'TVOID',
 	'TBOOL',
 	'TINTEGER',
+	'TFLOAT',
 	'TARRAY',
 	'TSTRING',
 )
@@ -73,6 +78,7 @@ t_COMMENTEND 	= r"\*\}"
 
 t_AND 			= r"\&\&"
 t_OR 			= r"\|\|"
+t_NOT			= r"\!"
 t_EQUAL 		= r"\=\="
 t_NEQUAL 		= r"\!\="
 t_LT			= r"\<"
@@ -88,11 +94,14 @@ t_MOD 			= r"\%"
 
 t_LBRACKET		= r"\{"
 t_RBRACKET		= r"\}"
+t_LBRACKET_S	= r"\["
+t_RBRACKET_S	= r"\]"
 t_LPAREN		= r"\("
 t_RPAREN		= r"\)"
 
 t_INTEGER		= r"(\-)*[0-9]+"
-#t_BOOL 			= r"true||false"
+t_FLOAT			= r"[+-]?([0-9]*[.])[0-9]+"
+t_BOOL 			= r"true|false"
 
 reserved_keywords = {	
 	'return':	'RETURN',
@@ -104,6 +113,7 @@ reserved_keywords = {
 	'void':		'TVOID',
 	'bool':		'TBOOL',	
 	'int':		'TINTEGER',
+	'float':	'TFLOAT',
 	'array':	'TARRAY',
 	'string':	'TSTRING',
 }
@@ -158,7 +168,6 @@ def t_newline(t):
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
-
 
 
 if __name__ == '__main__':
