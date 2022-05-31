@@ -1,7 +1,3 @@
-code = """if a > b {
-				return a;
-			}"""
-
 tokens = (
 	# assignment
 	'IDENTIFIER',
@@ -10,8 +6,7 @@ tokens = (
 	'COLON',
 	'COMMA',
 
-	'COMMENTBEGIN',
-	'COMMENTEND',
+	'COMMENT',
 
 	# functions
 	'RETURN',
@@ -73,9 +68,6 @@ t_SEMICOLON  	= r"\;"
 t_COLON      	= r"\:"
 t_COMMA			= r"\,"
 
-t_COMMENTBEGIN 	= r"\{\*"
-t_COMMENTEND 	= r"\*\}"
-
 t_AND 			= r"\&\&"
 t_OR 			= r"\|\|"
 t_NOT			= r"\!"
@@ -110,6 +102,9 @@ reserved_keywords = {
 	'else':		'ELSE',
 	'while':	'WHILE',
 
+	'true':		'BOOL',
+	'false':	'BOOL',
+
 	'void':		'TVOID',
 	'bool':		'TBOOL',	
 	'int':		'TINTEGER',
@@ -117,15 +112,6 @@ reserved_keywords = {
 	'array':	'TARRAY',
 	'string':	'TSTRING',
 }
-
-'''def t_INTEGER(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
-    return t'''
 
 def t_IDENTIFIER(t):
 	r"[a-zA-Z]([a-zA-Z0-9])*"
@@ -156,7 +142,7 @@ def t_STRING(t):
     return t
 
 def t_COMMENT(t):
-	r"{\*[^}]*\*}"
+	r"\(\*[\s\S]*\*\)"
 
 # Ignored characters
 t_ignore = " \t"
@@ -170,7 +156,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
 	# Build the lexer
 	from ply import lex
 	import sys 
@@ -195,4 +181,4 @@ if __name__ == '__main__':
 	while 1:
 	    tok = lex.token()
 	    if not tok: break      # No more input
-	    print(tok)
+	    print(tok)'''

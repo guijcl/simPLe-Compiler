@@ -11,9 +11,9 @@ def p_definition_sequence(t):
 	""" definition_sequence : definition definition_sequence
 	| definition """
 	if len(t) == 2:
-		t[0] = [t[1]]
+		t[0] = t[1]
 	else:
-		t[0] = [t[1]] + t[2]
+		t[0] = [t[1], t[2]]
 
 def p_definition(t):
 	""" definition : function_declaration
@@ -32,9 +32,9 @@ def p_function_declaration(t):
 	""" function_declaration : function_heading body 
 	| identifier COLON type LPAREN parameter_list RPAREN SEMICOLON """
 	if len(t) == 3:
-		t[0] = {'function_defined': t[1] | t[2]}
+		t[0] = {'declared_function': t[1] | t[2]}
 	else:
-		t[0] = {'function_declared': t[1] | t[3] | t[5]}
+		t[0] = {'declared_function': t[1] | t[3] | t[5]}
 
 def p_function_heading(t):
 	""" function_heading : identifier COLON type LPAREN parameter_list RPAREN """
@@ -60,9 +60,9 @@ def p_statement_sequence(t):
 	""" statement_sequence : statement statement_sequence
 	| statement """
 	if len(t) == 2:
-		t[0] = [t[1]]
+		t[0] = t[1]
 	else:
-		t[0] = [t[1]] + t[2]
+		t[0] = [t[1], t[2]]
 
 def p_statement(t):
 	""" statement : statement_part
@@ -70,8 +70,8 @@ def p_statement(t):
 	 | if_statement
 	 | while_statement
 	 | return_statement
-	 | function_call
-     | expression
+	 | procedure_or_function_call
+	 | array
 	 | """
 	if len(t) > 1:
 		t[0] = t[1]
@@ -80,8 +80,8 @@ def p_body(t):
 	""" body : statement """
 	t[0] = {'body': t[1]}
 
-def p_function_call(t):
-	""" function_call : identifier LPAREN param_list RPAREN SEMICOLON
+def p_procedure_or_function_call(t):
+	""" procedure_or_function_call : identifier LPAREN param_list RPAREN SEMICOLON
 	| identifier LPAREN RPAREN SEMICOLON """
 	if len(t) == 5:
 		t[0] = {'function_call': t[1]}
@@ -117,7 +117,7 @@ def p_while_statement(t):
 	t[0] = {'while': t[2] | t[3]}
 
 def p_return_statement(t):
-	""" return_statement : RETURN expression SEMICOLON """
+	""" return_statement : RETURN element SEMICOLON """
 	t[0] = {'return': t[2]}
 
 def p_expression(t):
@@ -168,24 +168,16 @@ def p_sign(t):
 
 def p_element(t):
 	""" element : identifier
-    | array
 	| integer
 	| float
 	| string
 	| bool
 	| LPAREN expression RPAREN 
-	| NOT element 
-    | function_call_inline """
+	| NOT element """
 	if len(t) == 2:
-		t[0] = t[1]
-	elif len(t) == 3:
-		t[0] = {'not': t[1]}
+		t[0] = {'element': t[1]}
 	else:
-		t[0] = t[1]
-
-def p_function_call_inline(t):
-	""" function_call_inline : identifier LPAREN param_list RPAREN """
-	t[0] = {'function_call_inline': t[1] | t[3]}
+		t[0] = {'element': t[2]}
 
 def p_identifier(t):
     """ identifier : IDENTIFIER """
@@ -212,9 +204,8 @@ def p_bool(t):
 	t[0] = {'bool': t[1]}
 
 def p_array(t):
-	""" array : identifier LBRACKET_S element RBRACKET_S
-    | identifier LBRACKET_S element RBRACKET_S SEMICOLON """
-	t[0] = {'array': t[1] | {'index': t[3]}}
+	""" array : identifier LBRACKET_S integer RBRACKET_S SEMICOLON """
+	t[0] = {'array': t[1] | t[3]}
 
 def p_type(t):
 	""" type : TINTEGER

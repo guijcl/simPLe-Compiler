@@ -6,6 +6,24 @@ from tokens import *
 from rules import *
 
 code = """
+		check:bool (b:bool);
+		(*
+		min:Int (a:Int, b:Int) {
+			return a + b;
+		}
+		*)
+		max:Int (a:Int, b:Int) {
+			if f(a) > arr[b] {
+				return 5 + a;
+			}
+			arr[b];
+			arr2[5];
+			return b + 10;
+		}
+		pi:bool = false;
+	   """
+
+'''code = """
 		min:Int (a:Int, b:Int);
 		max:Int (a:Int, b:Int) {
 			if a > b {
@@ -14,7 +32,7 @@ code = """
 			return b;
 		}
 		pi:Int = 3;
-	   """
+	   """'''
 
 '''code = """pi:Int = 3;"""'''
 
