@@ -156,6 +156,24 @@ def t_error(t):
     t.lexer.skip(1)
 
 
+code = """
+		check:bool (b:bool);
+		(*
+		min:Int (a:Int, b:Int) {
+			return a + b;
+		}
+		*)
+		max:Int (a:Int, b:Int) {
+			if f(a) > arr[b] {
+				return 5 + a;
+			}
+			arr[b];
+			arr2[5];
+			return b + 10;
+		}
+		pi:bool = false;
+	   """
+
 '''if __name__ == '__main__':
 	# Build the lexer
 	from ply import lex

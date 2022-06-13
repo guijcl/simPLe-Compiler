@@ -1,4 +1,5 @@
 import sys
+from types import NoneType
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -22,31 +23,39 @@ def p_definition(t):
 
 def p_variable_declaration(t):
 	""" variable_declaration : identifier COLON type SEMICOLON
-	| identifier COLON type ASSIGNMENT element SEMICOLON """
+	| identifier COLON type ASSIGNMENT expression SEMICOLON """
 	if len(t) == 5:
-		t[0] = {'var': t[1] | t[3]}
+		t[0] = {'nt': 'var_defined'} | t[1] | t[3]
 	else:
-		t[0] = {'var': t[1] | t[3] | t[5]}
+		t[0] = {'nt': 'var_declared'} | t[3] | t[1] | {'e': t[5]}
 
 def p_function_declaration(t):
 	""" function_declaration : function_heading body 
 	| identifier COLON type LPAREN parameter_list RPAREN SEMICOLON """
 	if len(t) == 3:
-		t[0] = {'function_defined': t[1] | t[2]}
-	else:
-		t[0] = {'function_declared': t[1] | t[3] | t[5]}
+		t[0] = {'nt': 'function_defined'} | t[1] | t[2]
+	if len(t) != 3:
+		if t[5] == None:
+			t[0] = {'nt': 'function_declared'} | t[1] | t[3]
+		else:
+			t[0] = {'nt': 'function_declared'} | t[1] | t[3] | {'parameters': t[5]}
+
 
 def p_function_heading(t):
 	""" function_heading : identifier COLON type LPAREN parameter_list RPAREN """
-	t[0] = {'function_header': t[1] | t[3] | t[5]}
+	if t[5] == None:
+		t[0] = t[1] | t[3]
+	else:
+		t[0] = t[1] | t[3] | {'parameters': t[5]}
 
 def p_parameter_list(t):
 	""" parameter_list : parameter COMMA parameter_list
-	| parameter """
-	if len(t) == 4:
-		t[0] = {'parameters': [t[1], t[3]]}
-	else:
-		t[0] = t[1]
+	| parameter 
+	| """
+	if len(t) == 2:
+		t[0] = [t[1]]
+	elif len(t) > 2:
+		t[0] = [t[1]] + t[3]
 
 def p_parameter(t):
 	""" parameter : identifier COLON type """
@@ -81,44 +90,44 @@ def p_body(t):
 	t[0] = {'body': t[1]}
 
 def p_function_call(t):
-	""" function_call : identifier LPAREN param_list RPAREN SEMICOLON
-	| identifier LPAREN RPAREN SEMICOLON """
-	if len(t) == 5:
-		t[0] = {'function_call': t[1]}
+	""" function_call : identifier LPAREN param_list RPAREN SEMICOLON """
+	if t[3] == None:
+		t[0] = {'nt': 'function_call'} | t[1]
 	else:
-		t[0] = {'function_call': t[1] | t[3]}
+		t[0] = {'nt': 'function_call'} | t[1] | {'parameters': t[3]}
 
 def p_param_list(t):
-	""" param_list : param_list COMMA param
-	 | param """
+	""" param_list : param COMMA param_list
+	 | param 
+	 | """
 	if len(t) == 2:
-		t[0] = t[1]
-	else:
-		t[0] = {'parameters': [t[1], t[3]]}
+		t[0] = [t[1]]
+	elif len(t) > 2:
+		t[0] = [t[1]] + t[3]
 
 def p_param(t):
 	""" param : expression """
 	t[0] = t[1]
 
 def p_assignment_statement(t):
-	""" assignment_statement : identifier COLON type ASSIGNMENT element SEMICOLON """
-	t[0] = {'assign': t[1] | t[3] | t[5]}
+	""" assignment_statement : identifier COLON type ASSIGNMENT expression SEMICOLON """
+	t[0] = {'nt': 'assign'} | t[1] | t[3] | {'e': t[5]}
 
 def p_if_statement(t):
 	""" if_statement : IF expression body ELSE body
 	| IF expression body """
 	if len(t) == 6:
-		t[0] = {'if': t[2] | t[3] | t[5]}
+		t[0] = {'nt': 'if_else', 'cond': t[2], 'if': t[3], 'else': t[5]}
 	else:
-		t[0] = {'if': t[2] | t[3]}
+		t[0] = {'nt': 'if', 'cond': t[2]} | t[3]
 
 def p_while_statement(t):
 	""" while_statement : WHILE expression body """
-	t[0] = {'while': t[2] | t[3]}
+	t[0] = {'nt': 'while', 'cond': t[2]} | t[3]
 
 def p_return_statement(t):
 	""" return_statement : RETURN expression SEMICOLON """
-	t[0] = {'return': t[2]}
+	t[0] = {'nt': 'return', 'ret_e': t[2]}
 
 def p_expression(t):
 	""" expression : expression_m
@@ -126,36 +135,25 @@ def p_expression(t):
 	if len(t) == 2:
 		t[0] = t[1]
 	else:
-		t[0] = {'op': t[2] | {'left':t[1]} | {'right':t[3]}}
+		t[0] = t[0] = {'nt': 'expr'} | t[2] | {'left': t[1]} | {'right': t[3]}
 
 def p_expression_m(t):
-	""" expression_m : expression_s
-	| expression_m sign expression_s """
+	""" expression_m : expression_e
+	| expression_m sign expression_e """
 	if len(t) == 2:
 		t[0] = t[1]
 	else:
-		t[0] = {'op': t[2] | {'left': t[1]} | {'right': t[3]}}
-
-def p_expression_s(t):
-	""" expression_s : element 
-	| expression_s psign element """
-	if len(t) == 2:
-		t[0] = t[1]
-	else:
-		t[0] = {'op': t[2] | {'left': t[1]} | {'right': t[3]}}
+		t[0] = {'nt': 'expr'} | t[2] | {'left': t[1]} | {'right': t[3]}
 
 def p_and_or(t):
 	""" and_or : AND
 	| OR """
 	t[0] = {'and_or': t[1]}
 
-def p_psign(t):
-	""" psign : TIMES 
-	| DIV """
-	t[0] = {'sign': t[1]}
-
 def p_sign(t):
-	""" sign : PLUS
+	""" sign : TIMES 
+	| DIV
+	| PLUS
 	| MINUS
 	| MOD
 	| EQUAL
@@ -166,26 +164,29 @@ def p_sign(t):
 	| GTE """
 	t[0] = {'sign': t[1]}
 
-def p_element(t):
-	""" element : identifier
+def p_expression_e(t):
+	""" expression_e : identifier
     | array
 	| integer
 	| float
 	| string
 	| bool
 	| LPAREN expression RPAREN 
-	| NOT element 
+	| NOT expression
     | function_call_inline """
-	if len(t) == 2:
-		t[0] = t[1]
-	elif len(t) == 3:
-		t[0] = {'not': t[1]}
+	if len(t) == 3:
+		t[0] = {'nt': 'not', 'e': t[2]}
+	elif len(t) == 2:
+		t[0] = {'nt': 'expr_e', 'e': t[1]}
 	else:
-		t[0] = t[1]
+		t[0] = {'nt': 'expr_e', 'e': t[2]}
 
 def p_function_call_inline(t):
 	""" function_call_inline : identifier LPAREN param_list RPAREN """
-	t[0] = {'function_call_inline': t[1] | t[3]}
+	if t[3] == None:
+		t[0] = {'nt': 'function_call_inline'} | t[1]
+	else:
+		t[0] = {'nt': 'function_call_inline'} | t[1] | {'parameters': t[3]}
 
 def p_identifier(t):
     """ identifier : IDENTIFIER """
@@ -212,8 +213,8 @@ def p_bool(t):
 	t[0] = {'bool': t[1]}
 
 def p_array(t):
-	""" array : identifier LBRACKET_S element RBRACKET_S
-    | identifier LBRACKET_S element RBRACKET_S SEMICOLON """
+	""" array : identifier LBRACKET_S expression RBRACKET_S
+    | identifier LBRACKET_S expression RBRACKET_S SEMICOLON """
 	t[0] = {'array': t[1] | {'index': t[3]}}
 
 def p_type(t):

@@ -5,7 +5,7 @@ from ply import yacc,lex
 from tokens import *
 from rules import *
 
-code = """
+'''code = """
 		check:bool (b:bool);
 		(*
 		min:Int (a:Int, b:Int) {
@@ -13,26 +13,36 @@ code = """
 		}
 		*)
 		max:Int (a:Int, b:Int) {
-			if f(a) > arr[b] {
+			while f(a, b) > arr[b(a)] {
 				return 5 + a;
 			}
+			f();
+			c:Int = 5;
 			arr[b];
 			arr2[5];
+			if !a {
+				return 2;
+			} else {
+				return 5;
+			}
 			return b + 10;
 		}
 		pi:bool = false;
-	   """
+	   """'''
 
-'''code = """
+code = """
 		min:Int (a:Int, b:Int);
+		teste:Int () {
+			return 5;
+		}
 		max:Int (a:Int, b:Int) {
-			if a > b {
+			if a > teste() {
 				return a;
 			}
 			return b;
 		}
 		pi:Int = 3;
-	   """'''
+	   """
 
 '''code = """pi:Int = 3;"""'''
 
@@ -52,14 +62,15 @@ def get_input(file=False):
 
 def main(filename=False):
 	logger = yacc.NullLogger()
-	yacc.yacc(debug = logger, errorlog= logger )
+	yacc.yacc(debug = logger, errorlog = logger )
 	
 	#data = get_input(filename)
 	data = code
 
-	ast = yacc.parse(data, lexer = lex.lex(nowarn=1))
+	ast = yacc.parse(data, lexer = lex.lex(nowarn = 1))
 
-	print(ast)
+	#print(ast)
+	return ast
 
 if __name__ == '__main__':
 	main()
