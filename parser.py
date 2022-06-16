@@ -61,8 +61,8 @@ def get_input(file=False):
 	return data
 
 def main(filename=False):
-	logger = yacc.NullLogger()
-	yacc.yacc(debug = logger, errorlog = logger )
+	#logger = yacc.NullLogger()
+	#yacc.yacc(debug = logger, errorlog = logger )
 	
 	#data = get_input(filename)
 	data = code
