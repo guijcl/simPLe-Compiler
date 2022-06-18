@@ -57,7 +57,6 @@ tokens = (
 	'TBOOL',
 	'TINTEGER',
 	'TFLOAT',
-	'TARRAY',
 	'TSTRING',
 )
 
@@ -109,7 +108,6 @@ reserved_keywords = {
 	'bool':		'TBOOL',	
 	'int':		'TINTEGER',
 	'float':	'TFLOAT',
-	'array':	'TARRAY',
 	'string':	'TSTRING',
 }
 

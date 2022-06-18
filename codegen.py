@@ -53,7 +53,7 @@ def codegen(node, emitter=None):
     elif node["nt"] == "function_declared":
       pass
     elif node["nt"] == "function_defined":
-      
+      pass
     elif node["nt"] in ["function_call", "function_call_inline"]:
       pass
     elif node["nt"] == "assign":
@@ -131,7 +131,5 @@ def codegen(node, emitter=None):
       pass
     elif node["nt"] == "expr_e":
       pass
-      else:
-         return check(ctx, elem)
     else:
-      print("Semantic missing: ", node["nt"])
+        pass

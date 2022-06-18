@@ -76,11 +76,13 @@ def p_statement_sequence(t):
 def p_statement(t):
 	""" statement : statement_part
 	 | assignment_statement
+	 | array_def
 	 | if_statement
 	 | while_statement
 	 | return_statement
 	 | function_call
-     | expression
+	 | array_call
+     | expression SEMICOLON
 	 | """
 	if len(t) > 1:
 		t[0] = t[1]
@@ -96,6 +98,10 @@ def p_function_call(t):
 	else:
 		t[0] = {'nt': 'function_call'} | t[1] | {'parameters': t[3]}
 
+def p_array_call(t):
+	""" array_call : identifier LBRACKET_S expression RBRACKET_S SEMICOLON """
+	t[0] = {'nt': 'array_call'} | t[1] | {'index': t[3]}
+
 def p_param_list(t):
 	""" param_list : param COMMA param_list
 	 | param 
@@ -110,8 +116,16 @@ def p_param(t):
 	t[0] = t[1]
 
 def p_assignment_statement(t):
-	""" assignment_statement : identifier COLON type ASSIGNMENT expression SEMICOLON """
-	t[0] = {'nt': 'assign'} | t[1] | t[3] | {'e': t[5]}
+	""" assignment_statement : identifier COLON type ASSIGNMENT expression SEMICOLON 
+	| identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON """
+	if len(t) == 7:
+		t[0] = {'nt': 'assign'} | t[1] | t[3] | {'e': t[5]}
+	else:
+		t[0] = {'nt': 'array_assign'} | t[1] | {'index': t[3], 'e': t[6]}
+
+def p_array_decl(t):
+	""" array_def : identifier COLON type SEMICOLON """
+	t[0] = {'nt': 'array_defined'} | t[1] | t[3]
 
 def p_if_statement(t):
 	""" if_statement : IF expression body ELSE body
@@ -166,14 +180,14 @@ def p_sign(t):
 
 def p_expression_e(t):
 	""" expression_e : identifier
-    | array
 	| integer
 	| float
 	| string
 	| bool
 	| LPAREN expression RPAREN 
 	| NOT expression
-    | function_call_inline """
+    | function_call_inline 
+	| array_call_inline """
 	if len(t) == 3:
 		t[0] = {'nt': 'not', 'e': t[2]}
 	elif len(t) == 2:
@@ -187,6 +201,10 @@ def p_function_call_inline(t):
 		t[0] = {'nt': 'function_call_inline'} | t[1]
 	else:
 		t[0] = {'nt': 'function_call_inline'} | t[1] | {'parameters': t[3]}
+
+def p_array_call_inline(t):
+	""" array_call_inline : identifier LBRACKET_S expression RBRACKET_S """
+	t[0] = {'nt': 'array_call_inline'} | t[1] | {'index': t[3]}
 
 def p_identifier(t):
     """ identifier : IDENTIFIER """
@@ -212,18 +230,16 @@ def p_bool(t):
 	""" bool : BOOL """
 	t[0] = {'bool': t[1]}
 
-def p_array(t):
-	""" array : identifier LBRACKET_S expression RBRACKET_S
-    | identifier LBRACKET_S expression RBRACKET_S SEMICOLON """
-	t[0] = {'array': t[1] | {'index': t[3]}}
-
 def p_type(t):
 	""" type : TINTEGER
 	| TFLOAT
 	| TSTRING 
 	| TBOOL 
-	| TARRAY """
-	t[0] = {'type': t[1].lower()}
+	| LBRACKET_S type RBRACKET_S """
+	if len(t) == 2:
+		t[0] = {'type': t[1].lower()}
+	else:
+		t[0] = {'value_types': t[2]}
 
 def p_error(t):
     print("Syntax error at " + str(t.value) + " in line " + str(t.lineno))

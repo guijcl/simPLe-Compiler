@@ -30,7 +30,22 @@ from rules import *
 		pi:bool = false;
 	   """'''
 
+'''code = """
+		min:Int (a:Int, b:Int);
+		teste:Int () {
+			return 5;
+		}
+		max:Int (a:Int, b:Int) {
+			if a > teste() {
+				return a;
+			}
+			return b;
+		}
+		pi:Int = 3;
+	   """'''
+
 code = """
+		arr1:[[string]];
 		min:Int (a:Int, b:Int);
 		teste:Int () {
 			return 5;
@@ -61,15 +76,15 @@ def get_input(file=False):
 	return data
 
 def main(filename=False):
-	#logger = yacc.NullLogger()
-	#yacc.yacc(debug = logger, errorlog = logger )
+	logger = yacc.NullLogger()
+	yacc.yacc(debug = logger, errorlog = logger )
 	
 	#data = get_input(filename)
 	data = code
 
 	ast = yacc.parse(data, lexer = lex.lex(nowarn = 1))
 
-	#print(ast)
+	print(ast)
 	return ast
 
 if __name__ == '__main__':
