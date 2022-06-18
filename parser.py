@@ -54,6 +54,8 @@ code = """
 			if a > teste() {
 				return a;
 			}
+			arr1[a] = ["a"];
+			arr1[a];
 			return b;
 		}
 		pi:Int = 3;

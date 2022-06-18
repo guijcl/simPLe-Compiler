@@ -184,6 +184,7 @@ def p_expression_e(t):
 	| float
 	| string
 	| bool
+	| array
 	| LPAREN expression RPAREN 
 	| NOT expression
     | function_call_inline 
@@ -229,6 +230,10 @@ def p_str(t):
 def p_bool(t):
 	""" bool : BOOL """
 	t[0] = {'bool': t[1]}
+
+def p_array(t):
+	""" array : LBRACKET_S expression RBRACKET_S """
+	t[0] = {'array': t[2]}
 
 def p_type(t):
 	""" type : TINTEGER

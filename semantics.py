@@ -32,6 +32,18 @@ class Context(object):
     def exit_scope(self):
         self.stack.pop(0)
 
+def array_type(node):
+   if "type" in node:
+      return node["type"]
+   elif "value_types" in node:
+      return ("array", array_type(node["value_types"]))
+
+def get_array_value_node_type(tup):
+   if type(tup[1]) != tuple:
+      return tup[1]
+   else:
+      return get_array_value_node_type(tup[1])
+
 def check(ctx:Context, node):
    if type(node) is list:
       for i in node:
@@ -40,6 +52,8 @@ def check(ctx:Context, node):
       name = node["identifier"]
       if ctx.has_var(name):
          raise TypeError(f"Variavel {name} ja esta definida no contexto")
+      if "value_types" in node: #array
+         return ctx.set_type(name, array_type(node)) #array
       return ctx.set_type(name, node["type"])
    elif node["nt"] == "var_declared":
       name = node["identifier"]
@@ -99,6 +113,11 @@ def check(ctx:Context, node):
             index = i + 1
             raise TypeError(f"Argumento #{index} esperava {par_t} mas recebe {arg_t}") 
       return expected_return
+   elif node["nt"] in ["array_call", "array_call_inline"]:
+      index_t = check(ctx, node["index"])
+      if index_t != 'int':
+         TypeError(f"Index {vt_s} has to be an Integer.")
+      return get_array_value_node_type(ctx.get_type(node["identifier"]))
    elif node["nt"] == "assign":
       name = node["identifier"]
       var_t = node["type"]
@@ -106,8 +125,17 @@ def check(ctx:Context, node):
       if ctx.has_var(name):
          raise TypeError(f"Variavel {name} ja esta definida no contexto")
       if var_t != value_t:
-         raise TypeError(f"Type {var_t} and {value_t} don't match.")
+         raise TypeError(f"Types {var_t} and {value_t} don't match.")
       return ctx.set_type(name, (var_t, value_t))
+   elif node["nt"] == "array_assign":
+      index_t = check(ctx, node["index"])
+      if index_t != 'int':
+         TypeError(f"Index {vt_s} has to be an Integer.")
+      v_types = check(ctx, node["e"])
+      a_types = ctx.get_type(node["identifier"])
+      if v_types != a_types[1]:
+         raise TypeError(f"Types {v_types} and {a_types[1]} don't match.")
+      return v_types
    elif node["nt"] == "if_else":
       cond = node["cond"]
       if check(ctx, cond) != "bool":
@@ -161,15 +189,14 @@ def check(ctx:Context, node):
             return ctx.get_type(i)
          elif "integer" in elem:
             return "int"
+         elif "string" in elem:
+            return "string"
          elif "float" in elem:
             return "float"
          elif "bool" in elem:
             return "bool"
          elif "array" in elem:
-            index_t = check(elem["index"])
-            if index_t != 'int':
-               TypeError(f"Index {vt_s} has to be an Integer.")
-            return "array"
+            return ("array", check(ctx, elem["array"]))
       else:
          return check(ctx, elem)
    else:
@@ -177,6 +204,15 @@ def check(ctx:Context, node):
 
 
 code = [
+   {
+      "nt":"var_defined",
+      "identifier":"arr1",
+      "value_types":{
+         "value_types":{
+            "type":"string"
+         }
+      }
+   },
    {
       "nt":"function_declared",
       "identifier":"min",
@@ -189,6 +225,22 @@ code = [
          {
             "identifier":"b",
             "type":"int"
+         }
+      ]
+   },
+   {
+      "nt":"function_defined",
+      "identifier":"teste",
+      "type":"int",
+      "body":[
+         {
+            "nt":"return",
+            "ret_e":{
+               "nt":"expr_e",
+               "e":{
+                  "integer":"5"
+               }
+            }
          }
       ]
    },
@@ -221,7 +273,8 @@ code = [
                "right":{
                   "nt":"expr_e",
                   "e":{
-                     "identifier":"b"
+                     "nt":"function_call_inline",
+                     "identifier":"teste"
                   }
                }
             },
@@ -236,6 +289,37 @@ code = [
                   }
                }
             ]
+         },
+         {
+            "nt":"array_assign",
+            "identifier":"arr1",
+            "index":{
+               "nt":"expr_e",
+               "e":{
+                  "integer":"0"
+               }
+            },
+            "e":{
+               "nt":"expr_e",
+               "e":{
+                  "array":{
+                     "nt":"expr_e",
+                     "e":{
+                        "string":"a"
+                     }
+                  }
+               }
+            }
+         },
+         {
+            "nt":"array_call",
+            "identifier":"arr1",
+            "index":{
+               "nt":"expr_e",
+               "e":{
+                  "integer":"0"
+               }
+            }
          },
          {
             "nt":"return",
