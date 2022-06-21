@@ -48,6 +48,7 @@ def check(ctx:Context, node):
    if type(node) is list:
       for i in node:
          check(ctx, i)
+
    elif node["nt"] == "var_defined":
       name = node["identifier"]
       if ctx.has_var(name):
@@ -55,6 +56,7 @@ def check(ctx:Context, node):
       if "value_types" in node: #array
          return ctx.set_type(name, array_type(node)) #array
       return ctx.set_type(name, node["type"])
+
    elif node["nt"] == "var_declared":
       name = node["identifier"]
       var_t = node["type"]
@@ -63,7 +65,8 @@ def check(ctx:Context, node):
          raise TypeError(f"Variavel {name} ja esta definida no contexto")
       if var_t != value_t:
          raise TypeError(f"Type {var_t} and {value_t} don't match.")
-      return ctx.set_type(name, (node["type"], check(ctx, node["e"])))   
+      return ctx.set_type(name, (node["type"], check(ctx, node["e"])))
+
    elif node["nt"] == "function_declared":
       name = node["identifier"]
       if ctx.has_var(name):
@@ -81,6 +84,7 @@ def check(ctx:Context, node):
          for par in node["parameters"]:
             ctx.set_type(par["identifier"], par["type"])
       ctx.exit_scope()
+
    elif node["nt"] == "function_defined":
       name = node["identifier"]
       if ctx.has_var(name):
@@ -102,7 +106,8 @@ def check(ctx:Context, node):
          check(ctx, elem)
       ctx.exit_scope()
       ctx.exit_scope()
-   elif node["nt"] in ["function_call", "function_call_inline"]:
+
+   elif node["nt"] == "function_call":
       e = ctx.get_type(node["identifier"])
       if type(e) != tuple:
          return e
@@ -113,21 +118,26 @@ def check(ctx:Context, node):
             index = i + 1
             raise TypeError(f"Argumento #{index} esperava {par_t} mas recebe {arg_t}") 
       return expected_return
-   elif node["nt"] in ["array_call", "array_call_inline"]:
+
+   elif node["nt"] == "array_call":
       index_t = check(ctx, node["index"])
       if index_t != 'int':
          TypeError(f"Index {vt_s} has to be an Integer.")
       return get_array_value_node_type(ctx.get_type(node["identifier"]))
-   elif node["nt"] == "assign":
+
+   elif node["nt"] == "var_assignment":
       name = node["identifier"]
-      var_t = node["type"]
       value_t = check(ctx, node["e"])
-      if ctx.has_var(name):
-         raise TypeError(f"Variavel {name} ja esta definida no contexto")
+      if not ctx.has_var(name):
+         raise TypeError(f"Variavel {name} nao esta definida no contexto")
+      var_t = ctx.get_type(name)
+      if type(var_t) == tuple:
+         var_t = var_t[0]
       if var_t != value_t:
          raise TypeError(f"Types {var_t} and {value_t} don't match.")
       return ctx.set_type(name, (var_t, value_t))
-   elif node["nt"] == "array_assign":
+
+   elif node["nt"] == "array_assignment":
       index_t = check(ctx, node["index"])
       if index_t != 'int':
          TypeError(f"Index {vt_s} has to be an Integer.")
@@ -136,6 +146,7 @@ def check(ctx:Context, node):
       if v_types != a_types[1]:
          raise TypeError(f"Types {v_types} and {a_types[1]} don't match.")
       return v_types
+
    elif node["nt"] == "if_else":
       cond = node["cond"]
       if check(ctx, cond) != "bool":
@@ -146,6 +157,7 @@ def check(ctx:Context, node):
       for st in node["else"]["body"]:
          check(ctx, st)
       ctx.exit_scope()
+
    elif node["nt"] in ["if", "while"]:
       cond = node["cond"]
       if check(ctx, cond) != "bool":
@@ -154,15 +166,18 @@ def check(ctx:Context, node):
       for st in node["body"]:
          check(ctx, st)
       ctx.exit_scope()
+
    elif node["nt"] == "return":
       t = check(ctx, node["ret_e"])
       expected_t = ctx.get_type(RETURN_CODE)
       if t != expected_t:
          raise TypeError(f"Return esperava {expected_t} mas recebe {t}")
+
    elif node["nt"] == "not":
       cond = node["e"]
       if check(ctx, cond) != "bool":
          raise TypeError(f"Condicao requer que {cond} seja boolean") 
+
    elif node["nt"] == "expr":
       vt1 = check(ctx, node["left"])
       vt2 = check(ctx, node["right"])
@@ -179,6 +194,7 @@ def check(ctx:Context, node):
          return 'bool'
       else:
          return vt1
+
    elif node["nt"] == "expr_e":
       elem = node["e"]
       if "nt" not in elem:
@@ -199,6 +215,7 @@ def check(ctx:Context, node):
             return ("array", check(ctx, elem["array"]))
       else:
          return check(ctx, elem)
+
    else:
       print("Semantic missing: ", node["nt"])
 
@@ -344,6 +361,3 @@ code = [
       }
    }
 ]
-
-
-check(Context(), code)

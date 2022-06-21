@@ -75,13 +75,12 @@ def p_statement_sequence(t):
 
 def p_statement(t):
 	""" statement : statement_part
+	 | local_variable_declaration
 	 | assignment_statement
 	 | array_def
 	 | if_statement
 	 | while_statement
 	 | return_statement
-	 | function_call
-	 | array_call
      | expression SEMICOLON
 	 | """
 	if len(t) > 1:
@@ -90,17 +89,6 @@ def p_statement(t):
 def p_body(t):
 	""" body : statement """
 	t[0] = {'body': t[1]}
-
-def p_function_call(t):
-	""" function_call : identifier LPAREN param_list RPAREN SEMICOLON """
-	if t[3] == None:
-		t[0] = {'nt': 'function_call'} | t[1]
-	else:
-		t[0] = {'nt': 'function_call'} | t[1] | {'parameters': t[3]}
-
-def p_array_call(t):
-	""" array_call : identifier LBRACKET_S expression RBRACKET_S SEMICOLON """
-	t[0] = {'nt': 'array_call'} | t[1] | {'index': t[3]}
 
 def p_param_list(t):
 	""" param_list : param COMMA param_list
@@ -115,17 +103,21 @@ def p_param(t):
 	""" param : expression """
 	t[0] = t[1]
 
-def p_assignment_statement(t):
-	""" assignment_statement : identifier COLON type ASSIGNMENT expression SEMICOLON 
-	| identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON """
-	if len(t) == 7:
-		t[0] = {'nt': 'assign'} | t[1] | t[3] | {'e': t[5]}
-	else:
-		t[0] = {'nt': 'array_assign'} | t[1] | {'index': t[3], 'e': t[6]}
+def p_local_variable_declaration(t):
+	""" local_variable_declaration : identifier COLON type ASSIGNMENT expression SEMICOLON """
+	t[0] = {'nt': 'var_declared'} | t[3] | t[1] | {'e': t[5]}
 
-def p_array_decl(t):
+def p_assignment_statement(t):
+	""" assignment_statement : identifier ASSIGNMENT expression SEMICOLON 
+	| identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON """
+	if len(t) == 5:
+		t[0] = {'nt': 'var_assignment'} | t[1] | {'e': t[3]}
+	else:
+		t[0] = {'nt': 'array_assignment'} | t[1] | {'index': t[3], 'e': t[6]}
+
+def p_array_def(t):
 	""" array_def : identifier COLON type SEMICOLON """
-	t[0] = {'nt': 'array_defined'} | t[1] | t[3]
+	t[0] = {'nt': 'var_defined'} | t[1] | t[3]
 
 def p_if_statement(t):
 	""" if_statement : IF expression body ELSE body
@@ -187,8 +179,8 @@ def p_expression_e(t):
 	| array
 	| LPAREN expression RPAREN 
 	| NOT expression
-    | function_call_inline 
-	| array_call_inline """
+    | function_call 
+	| array_call """
 	if len(t) == 3:
 		t[0] = {'nt': 'not', 'e': t[2]}
 	elif len(t) == 2:
@@ -196,16 +188,16 @@ def p_expression_e(t):
 	else:
 		t[0] = {'nt': 'expr_e', 'e': t[2]}
 
-def p_function_call_inline(t):
-	""" function_call_inline : identifier LPAREN param_list RPAREN """
+def p_function_call(t):
+	""" function_call : identifier LPAREN param_list RPAREN """
 	if t[3] == None:
-		t[0] = {'nt': 'function_call_inline'} | t[1]
+		t[0] = {'nt': 'function_call'} | t[1]
 	else:
-		t[0] = {'nt': 'function_call_inline'} | t[1] | {'parameters': t[3]}
+		t[0] = {'nt': 'function_call'} | t[1] | {'parameters': t[3]}
 
-def p_array_call_inline(t):
-	""" array_call_inline : identifier LBRACKET_S expression RBRACKET_S """
-	t[0] = {'nt': 'array_call_inline'} | t[1] | {'index': t[3]}
+def p_array_call(t):
+	""" array_call : identifier LBRACKET_S expression RBRACKET_S """
+	t[0] = {'nt': 'array_call'} | t[1] | {'index': t[3]}
 
 def p_identifier(t):
     """ identifier : IDENTIFIER """

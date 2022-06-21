@@ -47,6 +47,7 @@ from rules import *
 code = """
 		arr1:[[string]];
 		min:Int (a:Int, b:Int);
+		intt:Int = 10;
 		teste:Int () {
 			return 5;
 		}
@@ -54,6 +55,8 @@ code = """
 			if a > teste() {
 				return a;
 			}
+			teste();
+			intt = 5;
 			arr1[a] = ["a"];
 			arr1[a];
 			return b;
