@@ -1,7 +1,7 @@
 def get_type(type):
     if type == "string":
         pass
-    elif type == "integer":
+    elif type in ["integer","int"]:
         return "i32"
     elif type == "float":
         return "float"
@@ -42,6 +42,12 @@ def codegen(node, emitter=None):
             codegen(stmt, emitter)
 
         emitter << "define i32 @main() #0 {"
+
+        #id_t = emitter.get_id()
+        #emitter << f"%{id_t} = alloca i32, align 4"
+        #emitter << f"store i32 1, i32* %{id_t}, align 4"
+        #llvm::Value::getType()
+
         emitter << "   ret i32 0"
         emitter << "}"
         return emitter.get_code()
@@ -59,7 +65,16 @@ def codegen(node, emitter=None):
         #emitter << f"store i32 {registo[0]}, i32* {pname}, align 4"
         emitter << f"@{pname} = global i32 {registo[0]}, align 4"
     elif node["nt"] == "function_declared":
-      pass
+        f_name = node["identifier"]
+        f_type = get_type(node["type"])
+        p_str = "("
+        params = node["parameters"]
+        for n in range(0, len(params)):
+            if n == (len(params) - 1):
+                p_str += get_type(params[n]["type"]) + "noundef, "
+            else:
+                p_str += get_type(params[n]["type"]) + "noundef)"
+        emitter << f"declare {f_type} @{f_name}{p_str}"
     elif node["nt"] == "function_defined":
       pass
     elif node["nt"] in ["function_call", "function_call_inline"]:
@@ -81,10 +96,18 @@ def codegen(node, emitter=None):
         label_else_then = "else_then" + id_if_else
         label_fim = "if_else_fim_" + id_if
 
-        rcomp = "%" + emitter.get_id()
+        '''rcomp = "%" + emitter.get_id()
         rcond = codegen(cond, emitter)
         emitter << f"{rcomp} = {rcond}"
-        emitter << f"br i1 {rcomp}, label %{label_if_then}, label %{label_else_then}"
+        emitter << f"br i1 {rcomp}, label %{label_if_then}, label %{label_else_then}"'''
+        decision = codegen(cond, emitter)
+        if decision in ["label_progress", "label_skip"]:
+            if decision == "label_progress":
+                emitter << f"br label %{label_if_then}"
+            else:
+                emitter << f"br label %{label_else_then}"
+        else:
+            emitter << f"br i1 {decision}, label %{label_if_then}, label %{label_else_then}"
 
         emitter << f"{label_if_then}:"
         for b in blocks:
@@ -103,10 +126,18 @@ def codegen(node, emitter=None):
         label_then = "if_then_" + id_if
         label_fim = "if_fim_" + id_if
 
-        rcomp = "%" + emitter.get_id()
+        '''rcomp = "%" + emitter.get_id()
         rcond = codegen(cond, emitter)
         emitter << f"{rcomp} = {rcond}"
-        emitter << f"br i1 {rcomp}, label %{label_then}, label %{label_fim}"
+        emitter << f"br i1 {rcomp}, label %{label_then}, label %{label_fim}"'''
+        decision = codegen(cond, emitter)
+        if decision in ["label_progress", "label_skip"]:
+            if decision == "label_progress":
+                emitter << f"br label %{label_then}"
+            else:
+                emitter << f"br label %{label_fim}"
+        else:
+            emitter << f"br i1 {decision}, label %{label_then}, label %{label_fim}"
 
         emitter << f"{label_then}:"
         for b in blocks:
@@ -125,7 +156,6 @@ def codegen(node, emitter=None):
         '''rcomp = "%" + emitter.get_id()
         rcond = codegen(cond, emitter)
         emitter << f"{rcomp} = {rcond}"
-        
         emitter << f"br label %{label_inicio}"
         emitter << f"{label_inicio}:"
         emitter << f"br i1 {rcomp}, label %{label_body}, label %{label_fim}"'''
@@ -133,10 +163,13 @@ def codegen(node, emitter=None):
         emitter << f"br label %{label_inicio}"
         emitter << f"{label_inicio}:"
         decision = codegen(cond, emitter)
-        if decision == "label_progress":
-            emitter << f"br label %{label_body}"
+        if decision in ["label_progress", "label_skip"]:
+            if decision == "label_progress":
+                emitter << f"br label %{label_body}"
+            else:
+                emitter << f"br label %{label_fim}"
         else:
-            emitter << f"br label %{label_fim}"
+            emitter << f"br i1 {decision}, label %{label_body}, label %{label_fim}"
 
         emitter << f"{label_body}:"
         for b in blocks:
@@ -160,7 +193,7 @@ def codegen(node, emitter=None):
             vt_s = node["and_or"]
 
         if vt_s == '&&':
-            #vt1
+            # ===== vt1 =====
             if vt1 not in ["label_progress", "label_skip"]:
                 emitter << f"{vt1}"
 
@@ -179,7 +212,7 @@ def codegen(node, emitter=None):
                 emitter << f"br i1 {b}, label %{label_and}, label %{label_skip}"
             emitter << f"{label_and}:"
 
-            #vt2
+            # ===== vt2 =====
             if vt2 not in ["label_progress", "label_skip"]:
                 emitter << f"{vt2}"
             
@@ -197,55 +230,118 @@ def codegen(node, emitter=None):
 
             emitter << f"{label_skip}:"
             return "label_skip"
+
         elif vt_s == '||':
-            return ""
+            # ===== vt1 =====
+            if vt1 not in ["label_progress", "label_skip"]:
+                emitter << f"{vt1}"
+
+            id_and = emitter.get_id()
+            label_and = "and_next" + id_and
+            label_skip = "and_skip" + id_and
+            label_return = "and_return" + id_and
+
+            if vt1 not in ["label_progress", "label_skip"]:
+                emitter << f"br i1 {vt1}, label %{label_skip}, label %{label_and}"
+            else:
+                if vt1 == "label_progress":
+                    b = 1
+                else:
+                    b = 0
+                emitter << f"br i1 {b}, label %{label_skip}, label %{label_and}"
+            emitter << f"{label_and}:"
+
+            # ===== vt2 =====
+            if vt2 not in ["label_progress", "label_skip"]:
+                emitter << f"{vt2}"
+            
+            if vt2 not in ["label_progress", "label_skip"]:
+                emitter << f"br i1 {vt2}, label %{label_return}, label %{label_skip}"
+            else:
+                if vt2 == "label_progress":
+                    b = 1
+                else:
+                    b = 0
+                emitter << f"br i1 {b}, label %{label_return}, label %{label_skip}"
+
+            emitter << f"{label_return}:"
+            return "label_progress"
+
+            emitter << f"{label_skip}:"
+            return "label_skip"
+
         elif vt_s == '+':
             v_t = get_type(vt1[1])
+            rcomp = "%" + emitter.get_id()
             if v_t == "float":
-                return "fadd {v_t} {vt1}, {vt2}"
-            return "add {v_t} {vt1}, {vt2}"
+                return "%{rcomp} = fadd {v_t} {vt1}, {vt2}"
+            return "%{rcomp} = add {v_t} {vt1}, {vt2}"
+
         elif vt_s == '-':
             v_t = get_type(vt1[1])
+            rcomp = "%" + emitter.get_id()
             if v_t == "float":
-                return "fsub {v_t} {vt1}, {vt2}"
-            return "sub {v_t} {vt1}, {vt2}"
+                return "%{rcomp} = fsub {v_t} {vt1}, {vt2}"
+            return "%{rcomp} = sub {v_t} {vt1}, {vt2}"
+
         elif vt_s == '*':
             v_t = get_type(vt1[1])
+            rcomp = "%" + emitter.get_id()
             if v_t == "float":
-                return "fmul {v_t} {vt1}, {vt2}"
-            return "mul {v_t} {vt1}, {vt2}"
+                return "%{rcomp} = fmul {v_t} {vt1}, {vt2}"
+            return "%{rcomp} = mul {v_t} {vt1}, {vt2}"
+
         elif vt_s == '/':
             v_t = get_type(vt1[1])
+            rcomp = "%" + emitter.get_id()
             if v_t == "float":
-                return "fdiv {v_t} {vt1}, {vt2}"
-            return "sdiv {v_t} {vt1}, {vt2}"
+                return "%{rcomp} = fdiv {v_t} {vt1}, {vt2}"
+            return "%{rcomp} = sdiv {v_t} {vt1}, {vt2}"
+
         elif vt_s == '%':
             v_t = get_type(vt1[1])
-            return "srem {v_t} {vt1}, {vt2}"
+            rcomp = "%" + emitter.get_id()
+            return "%{rcomp} = srem {v_t} {vt1}, {vt2}"
+
         elif vt_s == '==':
             v_t = get_type(vt1[1])
-            return "icmp eq {v_t} {vt1}, {vt2}"
+            rcomp = "%" + emitter.get_id()
+            return "%{rcomp} = icmp eq {v_t} {vt1}, {vt2}"
+
         elif vt_s == '<=':
             v_t = get_type(vt1[1])
-            return "icmp sle {v_t} {vt1}, {vt2}"
+            rcomp = "%" + emitter.get_id()
+            return "%{rcomp} = icmp sle {v_t} {vt1}, {vt2}"
+
         elif vt_s == '>=':
             v_t = get_type(vt1[1])
-            return "icmp sge {v_t} {vt1}, {vt2}"
+            rcomp = "%" + emitter.get_id()
+            return "%{rcomp} = icmp sge {v_t} {vt1}, {vt2}"
+
         elif vt_s == '>':
             v_t = get_type(vt1[1])
-            return "icmp sgt {v_t} {vt1}, {vt2}"
+            rcomp = "%" + emitter.get_id()
+            return "%{rcomp} = icmp sgt {v_t} {vt1}, {vt2}"
+
         elif vt_s == '<':
             v_t = get_type(vt1[1])
-            return "icmp slt {v_t} {vt1}, {vt2}"
+            rcomp = "%" + emitter.get_id()
+            return "%{rcomp} = icmp slt {v_t} {vt1}, {vt2}"
+
         elif vt_s == '!=':
             v_t = get_type(vt1[1])
-            return "icmp ne {v_t} {vt1}, {vt2}"
+            rcomp = "%" + emitter.get_id()
+            return "%{rcomp} = icmp ne {v_t} {vt1}, {vt2}"
+
         return
     elif node["nt"] == "expr_e":
         elem = node["e"]
         if "nt" not in elem:
             if "identifier" in elem:
-                return elem["identifier"]
+                identifier_id = "%" + emitter.get_id()
+                pname = emitter.get_pointer_name(elem["identifier"])
+                #emitter << f"{identifier_id} = load type"
+                return identifier_id
             elif "integer" in elem:
                 return (elem["integer"], "integer")
             elif "string" in elem:
