@@ -44,27 +44,49 @@ from rules import *
 		pi:Int = 3;
 	   """'''
 
-code = """
+'''code = """
 		arr1:[[string]];
+		arr2:[Int];
 		min:Int (a:Int, b:Int);
 		intt:Int = 10;
-		teste:Int () {
-			return 5;
+		t:bool = true;
+		f:bool = false;
+		teste:Int ();
+		voidteste:void() {
+			leandro:string = "adeus";
+		}
+		voidteste2:void() {
+			leandro:string = "adeus";
+			return voidteste();
 		}
 		max:Int (a:Int, b:Int) {
-			if a > teste() {
+			if arr2[1] > teste() {
+				voidteste();
 				return a;
+			}
+			if (5 > b) && (2 > 1) {
+				return b;
 			}
 			teste();
 			intt = 5;
-			arr1[a] = ["a"];
+			arr1[5] = ["a"];
 			arr1[a];
 			return b;
 		}
 		pi:Int = 3;
-	   """
+	   """'''
 
 '''code = """pi:Int = 3;"""'''
+
+code = """
+		max:Int (a:Int, b:Int) {
+			if a > teste() {
+				return a;
+			}
+			return b;
+		}
+		pi:Int = 3;
+	   """
 
 def get_input(file=False):
 	if file:

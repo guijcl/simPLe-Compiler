@@ -38,11 +38,11 @@ def array_type(node):
    elif "value_types" in node:
       return ("array", array_type(node["value_types"]))
 
-def get_array_value_node_type(tup):
+'''def get_array_value_node_type(tup):
    if type(tup[1]) != tuple:
       return tup[1]
    else:
-      return get_array_value_node_type(tup[1])
+      return get_array_value_node_type(tup[1])'''
 
 def check(ctx:Context, node):
    if type(node) is list:
@@ -55,6 +55,8 @@ def check(ctx:Context, node):
          raise TypeError(f"Variavel {name} ja esta definida no contexto")
       if "value_types" in node: #array
          return ctx.set_type(name, array_type(node)) #array
+      if node["type"] == "void":
+         raise TypeError(f"Variavel nao pode ser do tipo void")
       return ctx.set_type(name, node["type"])
 
    elif node["nt"] == "var_declared":
@@ -63,9 +65,11 @@ def check(ctx:Context, node):
       value_t = check(ctx, node["e"])
       if ctx.has_var(name):
          raise TypeError(f"Variavel {name} ja esta definida no contexto")
+      if node["type"] == "void":
+         raise TypeError(f"Variavel nao pode ser do tipo void")
       if var_t != value_t:
          raise TypeError(f"Type {var_t} and {value_t} don't match.")
-      return ctx.set_type(name, (node["type"], check(ctx, node["e"])))
+      return ctx.set_type(name, node["type"])
 
    elif node["nt"] == "function_declared":
       name = node["identifier"]
@@ -123,7 +127,7 @@ def check(ctx:Context, node):
       index_t = check(ctx, node["index"])
       if index_t != 'int':
          TypeError(f"Index {vt_s} has to be an Integer.")
-      return get_array_value_node_type(ctx.get_type(node["identifier"]))
+      return ctx.get_type(node["identifier"])[1]
 
    elif node["nt"] == "var_assignment":
       name = node["identifier"]
@@ -168,7 +172,12 @@ def check(ctx:Context, node):
       ctx.exit_scope()
 
    elif node["nt"] == "return":
-      t = check(ctx, node["ret_e"])
+      if "ret_e" not in node:
+         t = "void"
+      elif node["ret_e"]["nt"] == "function_call" and check(ctx, node["ret_e"]) == "void":
+         t = "void"
+      else:
+         t = check(ctx, node["ret_e"])
       expected_t = ctx.get_type(RETURN_CODE)
       if t != expected_t:
          raise TypeError(f"Return esperava {expected_t} mas recebe {t}")
@@ -181,16 +190,32 @@ def check(ctx:Context, node):
    elif node["nt"] == "expr":
       vt1 = check(ctx, node["left"])
       vt2 = check(ctx, node["right"])
-      vt_s = node["sign"]
+
+      if "sign" in node:
+         vt_s = node["sign"]
+      if "and_or" in node:
+         vt_s = node["and_or"]
 
       if vt1 != vt2:
          raise TypeError(f"Arguments of operation {vt_s} must be of the same type. Got {vt1} and {vt2}.")
 
-      if vt_s == 'mod':
+      if vt_s in ["&&", "||"]:
+         if vt1 != 'bool':
+            raise TypeError(f"Operation {vt_s} requires booleans.")
+
+      if vt_s in ['+', '-', '*', '/']:
+         if vt1 == 'integer' or vt1 == 'float':
+            raise TypeError(f"Operation {vt_s} requires integers or floats.")
+
+      if vt_s == '%':
          if vt1 != 'integer':
             raise TypeError(f"Operation {vt_s} requires integers.")
       
-      if vt_s in ['==', '<=', '>=', '>', '<', '!=']:
+      if vt_s in ['==', '!=']:
+         return 'bool'
+      elif vt_s in ['<=', '>=', '>', '<']:
+         if vt1 == "bool":
+            raise TypeError(f"Operation {vt_s} requires non booleans.")
          return 'bool'
       else:
          return vt1

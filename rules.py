@@ -132,8 +132,12 @@ def p_while_statement(t):
 	t[0] = {'nt': 'while', 'cond': t[2]} | t[3]
 
 def p_return_statement(t):
-	""" return_statement : RETURN expression SEMICOLON """
-	t[0] = {'nt': 'return', 'ret_e': t[2]}
+	""" return_statement : RETURN expression SEMICOLON 
+	| RETURN SEMICOLON """
+	if len(t) == 4:
+		t[0] = {'nt': 'return', 'ret_e': t[2]}
+	else:
+		t[0] = {'nt': 'return'}
 
 def p_expression(t):
 	""" expression : expression_m
@@ -231,7 +235,8 @@ def p_type(t):
 	""" type : TINTEGER
 	| TFLOAT
 	| TSTRING 
-	| TBOOL 
+	| TBOOL
+	| TVOID
 	| LBRACKET_S type RBRACKET_S """
 	if len(t) == 2:
 		t[0] = {'type': t[1].lower()}
