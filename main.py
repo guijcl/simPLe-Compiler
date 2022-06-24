@@ -5,7 +5,7 @@ from codegen import *
 code = parser.main()
 check(Context(), code)
 
-codigo_llvm = codegen(code)
+codigo_llvm = codegen(code, Context())
 print(codigo_llvm)
 with open("code.ll", "w") as f:
 	f.write(codigo_llvm)

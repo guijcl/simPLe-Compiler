@@ -190,7 +190,7 @@ def p_expression_e(t):
 	elif len(t) == 2:
 		t[0] = {'nt': 'expr_e', 'e': t[1]}
 	else:
-		t[0] = {'nt': 'expr_e', 'e': t[2]}
+		t[0] = t[2] #!!
 
 def p_function_call(t):
 	""" function_call : identifier LPAREN param_list RPAREN """

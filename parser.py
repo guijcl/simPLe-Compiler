@@ -79,13 +79,19 @@ from rules import *
 '''code = """pi:Int = 3;"""'''
 
 code = """
-		max:Int (a:Int, b:Int) {
-			if a > teste() {
-				return a;
-			}
-			return b;
+		t:bool = true;
+		f:bool = false;
+		teste:Int(a:Int) {
+			return a;
 		}
-		pi:Int = 3;
+		max:Int (a:Int, b:Int) {
+			if(t || a > teste(5)) {
+				return 5;
+			} else {
+				return b;
+			}
+			return 5;
+		}
 	   """
 
 def get_input(file=False):
