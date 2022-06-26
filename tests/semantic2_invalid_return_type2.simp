@@ -1,0 +1,10 @@
+max:void (a:Int, b:Int) {
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+main:Int() {
+  return 0;
+}

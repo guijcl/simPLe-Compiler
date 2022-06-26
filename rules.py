@@ -105,7 +105,7 @@ def p_param(t):
 
 def p_local_variable_declaration(t):
 	""" local_variable_declaration : identifier COLON type ASSIGNMENT expression SEMICOLON """
-	t[0] = {'nt': 'var_declared'} | t[3] | t[1] | {'e': t[5]}
+	t[0] = {'nt': 'local_var_declared'} | t[3] | t[1] | {'e': t[5]}
 
 def p_assignment_statement(t):
 	""" assignment_statement : identifier ASSIGNMENT expression SEMICOLON 
@@ -116,7 +116,7 @@ def p_assignment_statement(t):
 		t[0] = {'nt': 'array_assignment'} | t[1] | {'index': t[3], 'e': t[6]}
 
 def p_array_def(t):
-	""" array_def : identifier COLON type SEMICOLON """
+	""" array_def : identifier COLON array_access SEMICOLON """
 	t[0] = {'nt': 'var_defined'} | t[1] | t[3]
 
 def p_if_statement(t):
@@ -242,6 +242,10 @@ def p_type(t):
 		t[0] = {'type': t[1].lower()}
 	else:
 		t[0] = {'value_types': t[2]}
+
+def p_array_access(t):
+	""" array_access : LBRACKET_S type RBRACKET_S """
+	t[0] = {'value_types': t[2]}
 
 def p_error(t):
     print("Syntax error at " + str(t.value) + " in line " + str(t.lineno))

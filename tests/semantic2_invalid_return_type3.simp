@@ -1,0 +1,14 @@
+teste:void() {
+  return;
+}
+
+max:void (a:Int, b:Int) {
+  if a > b {
+    return a;
+  }
+  return teste();
+}
+
+main:Int() {
+  return 0;
+}

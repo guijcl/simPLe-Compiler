@@ -1,0 +1,13 @@
+s:string = "a";
+
+max:Int (a:Int, b:Int) {
+  pi:Int = s;
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+main:Int() {
+  return 0;
+}

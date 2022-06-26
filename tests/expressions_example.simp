@@ -1,0 +1,43 @@
+b1:bool;
+b2:bool = False;
+
+n1:Int;
+n2:Int = 1;
+
+f1:float;
+f2:float = 1.5;
+
+exp:void(b:bool, n:Int, f:float) {
+    b1 = b;
+    n1 = n;
+    f1 = f;
+
+    b3:bool = True;
+    b3 = b1 && b2;
+    b3 = b1 || b2;
+
+    b4:bool = n1 == n2;
+    b5:bool = n1 != n2;
+    b3 = b4 && b5;
+
+    b4 = n1 >= n2;
+    b5 = n1 > n2;
+    b3 = b4 || b5;
+
+    b4 = n1 <= n2;
+    b5 = n1 < n2;
+    b3 = ((f1 > (f2 + 2.5)) || b4) && b5;
+
+    n1 = n * n2;
+    n1 = 5 + n;
+    n1 = n1 / 2;
+    n1 = n2 % n;
+    n1 = 5 - 2;
+
+}
+
+main:Int() {
+    exp(True, 2, 2.5);
+
+    return 0;
+}

@@ -1,0 +1,47 @@
+const:string = "Goodbye World";
+
+multiplier:int = 3;
+multiplierDois:int = 5;
+
+helloWorld:string() {
+
+  return "Hello World";
+}
+
+max:Int (a:Int, b:Int) {
+  helloWorld();
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+myFunction:bool(num:Int) {
+  maxnum:Int = max(2, 100);
+  while num < 1000 {
+    if (((maxnum + 2) >= num) && (maxnum < 20)) || ((num * multiplier) > 100) {
+      num = num * multiplierDois;
+    } else {
+      if maxnum < (maxnum * multiplier) {
+        maxnum = maxnum + 100;
+      }
+      num = num - (maxnum);
+    }
+  }
+  return (num % 2) == 1;
+}
+
+uselessDeclaredFunction:float (n:int, f:float, str:string, boolean:bool);
+
+returnString:string (s:string) {
+  return s;
+}
+
+main:Int() {
+  res:bool = myFunction(10);
+
+  (*EMULATE GOODBYE MESSAGE*)
+  returnString(const);
+
+  return 0;
+}

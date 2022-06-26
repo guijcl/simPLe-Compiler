@@ -42,7 +42,7 @@ Rule 30    param -> expression
 Rule 31    local_variable_declaration -> identifier COLON type ASSIGNMENT expression SEMICOLON
 Rule 32    assignment_statement -> identifier ASSIGNMENT expression SEMICOLON
 Rule 33    assignment_statement -> identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-Rule 34    array_def -> identifier COLON type SEMICOLON
+Rule 34    array_def -> identifier COLON array_access SEMICOLON
 Rule 35    if_statement -> IF expression body ELSE body
 Rule 36    if_statement -> IF expression body
 Rule 37    while_statement -> WHILE expression body
@@ -89,6 +89,7 @@ Rule 77    type -> TSTRING
 Rule 78    type -> TBOOL
 Rule 79    type -> TVOID
 Rule 80    type -> LBRACKET_S type RBRACKET_S
+Rule 81    array_access -> LBRACKET_S type RBRACKET_S
 
 Terminals, with rules where they appear
 
@@ -109,7 +110,7 @@ IDENTIFIER           : 69
 IF                   : 35 36
 INTEGER              : 70
 LBRACKET             : 14
-LBRACKET_S           : 33 68 74 80
+LBRACKET_S           : 33 68 74 80 81
 LPAREN               : 8 9 63 67
 LT                   : 53
 LTE                  : 54
@@ -120,7 +121,7 @@ NOT                  : 64
 OR                   : 45
 PLUS                 : 48
 RBRACKET             : 14
-RBRACKET_S           : 33 68 74 80
+RBRACKET_S           : 33 68 74 80 81
 RETURN               : 38 39
 RPAREN               : 8 9 63 67
 SEMICOLON            : 5 6 8 24 31 32 33 34 38 39
@@ -139,6 +140,7 @@ Nonterminals, with rules where they appear
 
 and_or               : 41
 array                : 62
+array_access         : 34
 array_call           : 66
 array_def            : 20
 assignment_statement : 19
@@ -167,7 +169,7 @@ statement            : 15 16 26
 statement_part       : 17
 statement_sequence   : 14 15
 string               : 60
-type                 : 5 6 8 9 13 31 34 80
+type                 : 5 6 8 9 13 31 80 81
 variable_declaration : 4
 while_statement      : 22
 
@@ -260,7 +262,7 @@ state 5
     (31) local_variable_declaration -> . identifier COLON type ASSIGNMENT expression SEMICOLON
     (32) assignment_statement -> . identifier ASSIGNMENT expression SEMICOLON
     (33) assignment_statement -> . identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-    (34) array_def -> . identifier COLON type SEMICOLON
+    (34) array_def -> . identifier COLON array_access SEMICOLON
     (35) if_statement -> . IF expression body ELSE body
     (36) if_statement -> . IF expression body
     (37) while_statement -> . WHILE expression body
@@ -591,7 +593,7 @@ state 19
     (31) local_variable_declaration -> . identifier COLON type ASSIGNMENT expression SEMICOLON
     (32) assignment_statement -> . identifier ASSIGNMENT expression SEMICOLON
     (33) assignment_statement -> . identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-    (34) array_def -> . identifier COLON type SEMICOLON
+    (34) array_def -> . identifier COLON array_access SEMICOLON
     (35) if_statement -> . IF expression body ELSE body
     (36) if_statement -> . IF expression body
     (37) while_statement -> . WHILE expression body
@@ -685,7 +687,7 @@ state 20
     (31) local_variable_declaration -> identifier . COLON type ASSIGNMENT expression SEMICOLON
     (32) assignment_statement -> identifier . ASSIGNMENT expression SEMICOLON
     (33) assignment_statement -> identifier . LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-    (34) array_def -> identifier . COLON type SEMICOLON
+    (34) array_def -> identifier . COLON array_access SEMICOLON
     (57) expression_e -> identifier .
     (67) function_call -> identifier . LPAREN param_list RPAREN
     (68) array_call -> identifier . LBRACKET_S expression RBRACKET_S
@@ -1666,7 +1668,7 @@ state 46
     (31) local_variable_declaration -> . identifier COLON type ASSIGNMENT expression SEMICOLON
     (32) assignment_statement -> . identifier ASSIGNMENT expression SEMICOLON
     (33) assignment_statement -> . identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-    (34) array_def -> . identifier COLON type SEMICOLON
+    (34) array_def -> . identifier COLON array_access SEMICOLON
     (35) if_statement -> . IF expression body ELSE body
     (36) if_statement -> . IF expression body
     (37) while_statement -> . WHILE expression body
@@ -1760,22 +1762,24 @@ state 46
 state 47
 
     (31) local_variable_declaration -> identifier COLON . type ASSIGNMENT expression SEMICOLON
-    (34) array_def -> identifier COLON . type SEMICOLON
+    (34) array_def -> identifier COLON . array_access SEMICOLON
     (75) type -> . TINTEGER
     (76) type -> . TFLOAT
     (77) type -> . TSTRING
     (78) type -> . TBOOL
     (79) type -> . TVOID
     (80) type -> . LBRACKET_S type RBRACKET_S
+    (81) array_access -> . LBRACKET_S type RBRACKET_S
 
     TINTEGER        shift and go to state 72
     TFLOAT          shift and go to state 73
     TSTRING         shift and go to state 74
     TBOOL           shift and go to state 75
     TVOID           shift and go to state 76
-    LBRACKET_S      shift and go to state 77
+    LBRACKET_S      shift and go to state 83
 
     type                           shift and go to state 81
+    array_access                   shift and go to state 82
 
 state 48
 
@@ -1813,7 +1817,7 @@ state 48
     LBRACKET_S      shift and go to state 21
 
     identifier                     shift and go to state 52
-    expression                     shift and go to state 82
+    expression                     shift and go to state 84
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     integer                        shift and go to state 27
@@ -1861,7 +1865,7 @@ state 49
     LBRACKET_S      shift and go to state 21
 
     identifier                     shift and go to state 52
-    expression                     shift and go to state 83
+    expression                     shift and go to state 85
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     integer                        shift and go to state 27
@@ -1913,9 +1917,9 @@ state 50
     LBRACKET_S      shift and go to state 21
 
     identifier                     shift and go to state 52
-    param_list                     shift and go to state 84
-    param                          shift and go to state 85
-    expression                     shift and go to state 86
+    param_list                     shift and go to state 86
+    param                          shift and go to state 87
+    expression                     shift and go to state 88
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     integer                        shift and go to state 27
@@ -1933,7 +1937,7 @@ state 51
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    RBRACKET_S      shift and go to state 87
+    RBRACKET_S      shift and go to state 89
     AND             shift and go to state 43
     OR              shift and go to state 44
 
@@ -1978,7 +1982,7 @@ state 52
     RPAREN          reduce using rule 57 (expression_e -> identifier .)
     COMMA           reduce using rule 57 (expression_e -> identifier .)
     LPAREN          shift and go to state 50
-    LBRACKET_S      shift and go to state 88
+    LBRACKET_S      shift and go to state 90
 
   ! LPAREN          [ reduce using rule 57 (expression_e -> identifier .) ]
   ! LBRACKET_S      [ reduce using rule 57 (expression_e -> identifier .) ]
@@ -2005,7 +2009,7 @@ state 53
     (31) local_variable_declaration -> . identifier COLON type ASSIGNMENT expression SEMICOLON
     (32) assignment_statement -> . identifier ASSIGNMENT expression SEMICOLON
     (33) assignment_statement -> . identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-    (34) array_def -> . identifier COLON type SEMICOLON
+    (34) array_def -> . identifier COLON array_access SEMICOLON
     (35) if_statement -> . IF expression body ELSE body
     (36) if_statement -> . IF expression body
     (37) while_statement -> . WHILE expression body
@@ -2078,7 +2082,7 @@ state 53
   ! LBRACKET_S      [ reduce using rule 25 (statement -> .) ]
 
     expression                     shift and go to state 18
-    body                           shift and go to state 89
+    body                           shift and go to state 91
     and_or                         shift and go to state 42
     expression_m                   shift and go to state 25
     statement                      shift and go to state 10
@@ -2119,7 +2123,7 @@ state 54
     (31) local_variable_declaration -> . identifier COLON type ASSIGNMENT expression SEMICOLON
     (32) assignment_statement -> . identifier ASSIGNMENT expression SEMICOLON
     (33) assignment_statement -> . identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-    (34) array_def -> . identifier COLON type SEMICOLON
+    (34) array_def -> . identifier COLON array_access SEMICOLON
     (35) if_statement -> . IF expression body ELSE body
     (36) if_statement -> . IF expression body
     (37) while_statement -> . WHILE expression body
@@ -2192,7 +2196,7 @@ state 54
   ! LBRACKET_S      [ reduce using rule 25 (statement -> .) ]
 
     expression                     shift and go to state 18
-    body                           shift and go to state 90
+    body                           shift and go to state 92
     and_or                         shift and go to state 42
     expression_m                   shift and go to state 25
     statement                      shift and go to state 10
@@ -2220,7 +2224,7 @@ state 55
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    SEMICOLON       shift and go to state 91
+    SEMICOLON       shift and go to state 93
     AND             shift and go to state 43
     OR              shift and go to state 44
 
@@ -2278,7 +2282,7 @@ state 57
     BOOL            shift and go to state 39
     LBRACKET_S      shift and go to state 21
 
-    expression_e                   shift and go to state 92
+    expression_e                   shift and go to state 94
     identifier                     shift and go to state 52
     integer                        shift and go to state 27
     float                          shift and go to state 28
@@ -2449,7 +2453,7 @@ state 69
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    RPAREN          shift and go to state 93
+    RPAREN          shift and go to state 95
     AND             shift and go to state 43
     OR              shift and go to state 44
 
@@ -2509,9 +2513,9 @@ state 71
     (6) variable_declaration -> identifier COLON type . ASSIGNMENT expression SEMICOLON
     (9) function_heading -> identifier COLON type . LPAREN parameter_list RPAREN
 
-    LPAREN          shift and go to state 94
-    SEMICOLON       shift and go to state 95
-    ASSIGNMENT      shift and go to state 96
+    LPAREN          shift and go to state 96
+    SEMICOLON       shift and go to state 97
+    ASSIGNMENT      shift and go to state 98
 
 
 state 72
@@ -2591,7 +2595,7 @@ state 77
     TVOID           shift and go to state 76
     LBRACKET_S      shift and go to state 77
 
-    type                           shift and go to state 97
+    type                           shift and go to state 99
 
 state 78
 
@@ -2698,26 +2702,51 @@ state 80
 state 81
 
     (31) local_variable_declaration -> identifier COLON type . ASSIGNMENT expression SEMICOLON
-    (34) array_def -> identifier COLON type . SEMICOLON
 
-    ASSIGNMENT      shift and go to state 98
-    SEMICOLON       shift and go to state 99
+    ASSIGNMENT      shift and go to state 100
 
 
 state 82
+
+    (34) array_def -> identifier COLON array_access . SEMICOLON
+
+    SEMICOLON       shift and go to state 101
+
+
+state 83
+
+    (80) type -> LBRACKET_S . type RBRACKET_S
+    (81) array_access -> LBRACKET_S . type RBRACKET_S
+    (75) type -> . TINTEGER
+    (76) type -> . TFLOAT
+    (77) type -> . TSTRING
+    (78) type -> . TBOOL
+    (79) type -> . TVOID
+    (80) type -> . LBRACKET_S type RBRACKET_S
+
+    TINTEGER        shift and go to state 72
+    TFLOAT          shift and go to state 73
+    TSTRING         shift and go to state 74
+    TBOOL           shift and go to state 75
+    TVOID           shift and go to state 76
+    LBRACKET_S      shift and go to state 77
+
+    type                           shift and go to state 102
+
+state 84
 
     (32) assignment_statement -> identifier ASSIGNMENT expression . SEMICOLON
     (41) expression -> expression . and_or expression_m
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    SEMICOLON       shift and go to state 100
+    SEMICOLON       shift and go to state 103
     AND             shift and go to state 43
     OR              shift and go to state 44
 
     and_or                         shift and go to state 42
 
-state 83
+state 85
 
     (33) assignment_statement -> identifier LBRACKET_S expression . RBRACKET_S ASSIGNMENT expression SEMICOLON
     (68) array_call -> identifier LBRACKET_S expression . RBRACKET_S
@@ -2725,29 +2754,29 @@ state 83
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    RBRACKET_S      shift and go to state 101
+    RBRACKET_S      shift and go to state 104
     AND             shift and go to state 43
     OR              shift and go to state 44
 
     and_or                         shift and go to state 42
 
-state 84
+state 86
 
     (67) function_call -> identifier LPAREN param_list . RPAREN
 
-    RPAREN          shift and go to state 102
+    RPAREN          shift and go to state 105
 
 
-state 85
+state 87
 
     (27) param_list -> param . COMMA param_list
     (28) param_list -> param .
 
-    COMMA           shift and go to state 103
+    COMMA           shift and go to state 106
     RPAREN          reduce using rule 28 (param_list -> param .)
 
 
-state 86
+state 88
 
     (30) param -> expression .
     (41) expression -> expression . and_or expression_m
@@ -2761,7 +2790,7 @@ state 86
 
     and_or                         shift and go to state 42
 
-state 87
+state 89
 
     (74) array -> LBRACKET_S expression RBRACKET_S .
 
@@ -2799,7 +2828,7 @@ state 87
     COMMA           reduce using rule 74 (array -> LBRACKET_S expression RBRACKET_S .)
 
 
-state 88
+state 90
 
     (68) array_call -> identifier LBRACKET_S . expression RBRACKET_S
     (40) expression -> . expression_m
@@ -2835,7 +2864,7 @@ state 88
     LBRACKET_S      shift and go to state 21
 
     identifier                     shift and go to state 52
-    expression                     shift and go to state 104
+    expression                     shift and go to state 107
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     integer                        shift and go to state 27
@@ -2846,13 +2875,13 @@ state 88
     function_call                  shift and go to state 34
     array_call                     shift and go to state 35
 
-state 89
+state 91
 
     (35) if_statement -> IF expression body . ELSE body
     (36) if_statement -> IF expression body .
 
   ! shift/reduce conflict for ELSE resolved as shift
-    ELSE            shift and go to state 105
+    ELSE            shift and go to state 108
     IDENTIFIER      reduce using rule 36 (if_statement -> IF expression body .)
     $end            reduce using rule 36 (if_statement -> IF expression body .)
     LBRACKET        reduce using rule 36 (if_statement -> IF expression body .)
@@ -2871,7 +2900,7 @@ state 89
   ! ELSE            [ reduce using rule 36 (if_statement -> IF expression body .) ]
 
 
-state 90
+state 92
 
     (37) while_statement -> WHILE expression body .
 
@@ -2892,7 +2921,7 @@ state 90
     ELSE            reduce using rule 37 (while_statement -> WHILE expression body .)
 
 
-state 91
+state 93
 
     (38) return_statement -> RETURN expression SEMICOLON .
 
@@ -2913,7 +2942,7 @@ state 91
     ELSE            reduce using rule 38 (return_statement -> RETURN expression SEMICOLON .)
 
 
-state 92
+state 94
 
     (43) expression_m -> expression_m sign expression_e .
 
@@ -2951,7 +2980,7 @@ state 92
     COMMA           reduce using rule 43 (expression_m -> expression_m sign expression_e .)
 
 
-state 93
+state 95
 
     (63) expression_e -> LPAREN expression RPAREN .
 
@@ -2989,7 +3018,7 @@ state 93
     COMMA           reduce using rule 63 (expression_e -> LPAREN expression RPAREN .)
 
 
-state 94
+state 96
 
     (8) function_declaration -> identifier COLON type LPAREN . parameter_list RPAREN SEMICOLON
     (9) function_heading -> identifier COLON type LPAREN . parameter_list RPAREN
@@ -3002,11 +3031,11 @@ state 94
     RPAREN          reduce using rule 12 (parameter_list -> .)
     IDENTIFIER      shift and go to state 7
 
-    identifier                     shift and go to state 106
-    parameter_list                 shift and go to state 107
-    parameter                      shift and go to state 108
+    identifier                     shift and go to state 109
+    parameter_list                 shift and go to state 110
+    parameter                      shift and go to state 111
 
-state 95
+state 97
 
     (5) variable_declaration -> identifier COLON type SEMICOLON .
 
@@ -3014,7 +3043,7 @@ state 95
     $end            reduce using rule 5 (variable_declaration -> identifier COLON type SEMICOLON .)
 
 
-state 96
+state 98
 
     (6) variable_declaration -> identifier COLON type ASSIGNMENT . expression SEMICOLON
     (40) expression -> . expression_m
@@ -3050,7 +3079,7 @@ state 96
     LBRACKET_S      shift and go to state 21
 
     identifier                     shift and go to state 52
-    expression                     shift and go to state 109
+    expression                     shift and go to state 112
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     integer                        shift and go to state 27
@@ -3061,14 +3090,14 @@ state 96
     function_call                  shift and go to state 34
     array_call                     shift and go to state 35
 
-state 97
+state 99
 
     (80) type -> LBRACKET_S type . RBRACKET_S
 
-    RBRACKET_S      shift and go to state 110
+    RBRACKET_S      shift and go to state 113
 
 
-state 98
+state 100
 
     (31) local_variable_declaration -> identifier COLON type ASSIGNMENT . expression SEMICOLON
     (40) expression -> . expression_m
@@ -3104,7 +3133,7 @@ state 98
     LBRACKET_S      shift and go to state 21
 
     identifier                     shift and go to state 52
-    expression                     shift and go to state 111
+    expression                     shift and go to state 114
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     integer                        shift and go to state 27
@@ -3115,28 +3144,36 @@ state 98
     function_call                  shift and go to state 34
     array_call                     shift and go to state 35
 
-state 99
+state 101
 
-    (34) array_def -> identifier COLON type SEMICOLON .
+    (34) array_def -> identifier COLON array_access SEMICOLON .
 
-    IDENTIFIER      reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    $end            reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    LBRACKET        reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    IF              reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    WHILE           reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    RETURN          reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    LPAREN          reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    NOT             reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    INTEGER         reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    FLOAT           reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    STRING          reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    BOOL            reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    LBRACKET_S      reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    RBRACKET        reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
-    ELSE            reduce using rule 34 (array_def -> identifier COLON type SEMICOLON .)
+    IDENTIFIER      reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    $end            reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    LBRACKET        reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    IF              reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    WHILE           reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    RETURN          reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    LPAREN          reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    NOT             reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    INTEGER         reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    FLOAT           reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    STRING          reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    BOOL            reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    LBRACKET_S      reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    RBRACKET        reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
+    ELSE            reduce using rule 34 (array_def -> identifier COLON array_access SEMICOLON .)
 
 
-state 100
+state 102
+
+    (80) type -> LBRACKET_S type . RBRACKET_S
+    (81) array_access -> LBRACKET_S type . RBRACKET_S
+
+    RBRACKET_S      shift and go to state 115
+
+
+state 103
 
     (32) assignment_statement -> identifier ASSIGNMENT expression SEMICOLON .
 
@@ -3157,12 +3194,12 @@ state 100
     ELSE            reduce using rule 32 (assignment_statement -> identifier ASSIGNMENT expression SEMICOLON .)
 
 
-state 101
+state 104
 
     (33) assignment_statement -> identifier LBRACKET_S expression RBRACKET_S . ASSIGNMENT expression SEMICOLON
     (68) array_call -> identifier LBRACKET_S expression RBRACKET_S .
 
-    ASSIGNMENT      shift and go to state 112
+    ASSIGNMENT      shift and go to state 116
     TIMES           reduce using rule 68 (array_call -> identifier LBRACKET_S expression RBRACKET_S .)
     DIV             reduce using rule 68 (array_call -> identifier LBRACKET_S expression RBRACKET_S .)
     PLUS            reduce using rule 68 (array_call -> identifier LBRACKET_S expression RBRACKET_S .)
@@ -3179,7 +3216,7 @@ state 101
     OR              reduce using rule 68 (array_call -> identifier LBRACKET_S expression RBRACKET_S .)
 
 
-state 102
+state 105
 
     (67) function_call -> identifier LPAREN param_list RPAREN .
 
@@ -3217,7 +3254,7 @@ state 102
     COMMA           reduce using rule 67 (function_call -> identifier LPAREN param_list RPAREN .)
 
 
-state 103
+state 106
 
     (27) param_list -> param COMMA . param_list
     (27) param_list -> . param COMMA param_list
@@ -3257,9 +3294,9 @@ state 103
     BOOL            shift and go to state 39
     LBRACKET_S      shift and go to state 21
 
-    param                          shift and go to state 85
-    param_list                     shift and go to state 113
-    expression                     shift and go to state 86
+    param                          shift and go to state 87
+    param_list                     shift and go to state 117
+    expression                     shift and go to state 88
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     identifier                     shift and go to state 52
@@ -3271,20 +3308,20 @@ state 103
     function_call                  shift and go to state 34
     array_call                     shift and go to state 35
 
-state 104
+state 107
 
     (68) array_call -> identifier LBRACKET_S expression . RBRACKET_S
     (41) expression -> expression . and_or expression_m
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    RBRACKET_S      shift and go to state 114
+    RBRACKET_S      shift and go to state 118
     AND             shift and go to state 43
     OR              shift and go to state 44
 
     and_or                         shift and go to state 42
 
-state 105
+state 108
 
     (35) if_statement -> IF expression body ELSE . body
     (26) body -> . statement
@@ -3301,7 +3338,7 @@ state 105
     (31) local_variable_declaration -> . identifier COLON type ASSIGNMENT expression SEMICOLON
     (32) assignment_statement -> . identifier ASSIGNMENT expression SEMICOLON
     (33) assignment_statement -> . identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON
-    (34) array_def -> . identifier COLON type SEMICOLON
+    (34) array_def -> . identifier COLON array_access SEMICOLON
     (35) if_statement -> . IF expression body ELSE body
     (36) if_statement -> . IF expression body
     (37) while_statement -> . WHILE expression body
@@ -3372,7 +3409,7 @@ state 105
   ! LBRACKET_S      [ reduce using rule 25 (statement -> .) ]
 
     expression                     shift and go to state 18
-    body                           shift and go to state 115
+    body                           shift and go to state 119
     statement                      shift and go to state 10
     statement_part                 shift and go to state 11
     local_variable_declaration     shift and go to state 12
@@ -3392,44 +3429,44 @@ state 105
     function_call                  shift and go to state 34
     array_call                     shift and go to state 35
 
-state 106
+state 109
 
     (13) parameter -> identifier . COLON type
 
-    COLON           shift and go to state 116
+    COLON           shift and go to state 120
 
 
-state 107
+state 110
 
     (8) function_declaration -> identifier COLON type LPAREN parameter_list . RPAREN SEMICOLON
     (9) function_heading -> identifier COLON type LPAREN parameter_list . RPAREN
 
-    RPAREN          shift and go to state 117
+    RPAREN          shift and go to state 121
 
 
-state 108
+state 111
 
     (10) parameter_list -> parameter . COMMA parameter_list
     (11) parameter_list -> parameter .
 
-    COMMA           shift and go to state 118
+    COMMA           shift and go to state 122
     RPAREN          reduce using rule 11 (parameter_list -> parameter .)
 
 
-state 109
+state 112
 
     (6) variable_declaration -> identifier COLON type ASSIGNMENT expression . SEMICOLON
     (41) expression -> expression . and_or expression_m
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    SEMICOLON       shift and go to state 119
+    SEMICOLON       shift and go to state 123
     AND             shift and go to state 43
     OR              shift and go to state 44
 
     and_or                         shift and go to state 42
 
-state 110
+state 113
 
     (80) type -> LBRACKET_S type RBRACKET_S .
 
@@ -3441,20 +3478,29 @@ state 110
     RPAREN          reduce using rule 80 (type -> LBRACKET_S type RBRACKET_S .)
 
 
-state 111
+state 114
 
     (31) local_variable_declaration -> identifier COLON type ASSIGNMENT expression . SEMICOLON
     (41) expression -> expression . and_or expression_m
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    SEMICOLON       shift and go to state 120
+    SEMICOLON       shift and go to state 124
     AND             shift and go to state 43
     OR              shift and go to state 44
 
     and_or                         shift and go to state 42
 
-state 112
+state 115
+
+    (80) type -> LBRACKET_S type RBRACKET_S .
+    (81) array_access -> LBRACKET_S type RBRACKET_S .
+
+    ASSIGNMENT      reduce using rule 80 (type -> LBRACKET_S type RBRACKET_S .)
+    SEMICOLON       reduce using rule 81 (array_access -> LBRACKET_S type RBRACKET_S .)
+
+
+state 116
 
     (33) assignment_statement -> identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT . expression SEMICOLON
     (40) expression -> . expression_m
@@ -3490,7 +3536,7 @@ state 112
     LBRACKET_S      shift and go to state 21
 
     identifier                     shift and go to state 52
-    expression                     shift and go to state 121
+    expression                     shift and go to state 125
     expression_m                   shift and go to state 25
     expression_e                   shift and go to state 26
     integer                        shift and go to state 27
@@ -3501,14 +3547,14 @@ state 112
     function_call                  shift and go to state 34
     array_call                     shift and go to state 35
 
-state 113
+state 117
 
     (27) param_list -> param COMMA param_list .
 
     RPAREN          reduce using rule 27 (param_list -> param COMMA param_list .)
 
 
-state 114
+state 118
 
     (68) array_call -> identifier LBRACKET_S expression RBRACKET_S .
 
@@ -3546,7 +3592,7 @@ state 114
     COMMA           reduce using rule 68 (array_call -> identifier LBRACKET_S expression RBRACKET_S .)
 
 
-state 115
+state 119
 
     (35) if_statement -> IF expression body ELSE body .
 
@@ -3567,7 +3613,7 @@ state 115
     ELSE            reduce using rule 35 (if_statement -> IF expression body ELSE body .)
 
 
-state 116
+state 120
 
     (13) parameter -> identifier COLON . type
     (75) type -> . TINTEGER
@@ -3584,14 +3630,14 @@ state 116
     TVOID           shift and go to state 76
     LBRACKET_S      shift and go to state 77
 
-    type                           shift and go to state 122
+    type                           shift and go to state 126
 
-state 117
+state 121
 
     (8) function_declaration -> identifier COLON type LPAREN parameter_list RPAREN . SEMICOLON
     (9) function_heading -> identifier COLON type LPAREN parameter_list RPAREN .
 
-    SEMICOLON       shift and go to state 123
+    SEMICOLON       shift and go to state 127
     LBRACKET        reduce using rule 9 (function_heading -> identifier COLON type LPAREN parameter_list RPAREN .)
     IF              reduce using rule 9 (function_heading -> identifier COLON type LPAREN parameter_list RPAREN .)
     WHILE           reduce using rule 9 (function_heading -> identifier COLON type LPAREN parameter_list RPAREN .)
@@ -3607,7 +3653,7 @@ state 117
     $end            reduce using rule 9 (function_heading -> identifier COLON type LPAREN parameter_list RPAREN .)
 
 
-state 118
+state 122
 
     (10) parameter_list -> parameter COMMA . parameter_list
     (10) parameter_list -> . parameter COMMA parameter_list
@@ -3619,11 +3665,11 @@ state 118
     RPAREN          reduce using rule 12 (parameter_list -> .)
     IDENTIFIER      shift and go to state 7
 
-    parameter                      shift and go to state 108
-    parameter_list                 shift and go to state 124
-    identifier                     shift and go to state 106
+    parameter                      shift and go to state 111
+    parameter_list                 shift and go to state 128
+    identifier                     shift and go to state 109
 
-state 119
+state 123
 
     (6) variable_declaration -> identifier COLON type ASSIGNMENT expression SEMICOLON .
 
@@ -3631,7 +3677,7 @@ state 119
     $end            reduce using rule 6 (variable_declaration -> identifier COLON type ASSIGNMENT expression SEMICOLON .)
 
 
-state 120
+state 124
 
     (31) local_variable_declaration -> identifier COLON type ASSIGNMENT expression SEMICOLON .
 
@@ -3652,20 +3698,20 @@ state 120
     ELSE            reduce using rule 31 (local_variable_declaration -> identifier COLON type ASSIGNMENT expression SEMICOLON .)
 
 
-state 121
+state 125
 
     (33) assignment_statement -> identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression . SEMICOLON
     (41) expression -> expression . and_or expression_m
     (44) and_or -> . AND
     (45) and_or -> . OR
 
-    SEMICOLON       shift and go to state 125
+    SEMICOLON       shift and go to state 129
     AND             shift and go to state 43
     OR              shift and go to state 44
 
     and_or                         shift and go to state 42
 
-state 122
+state 126
 
     (13) parameter -> identifier COLON type .
 
@@ -3673,7 +3719,7 @@ state 122
     RPAREN          reduce using rule 13 (parameter -> identifier COLON type .)
 
 
-state 123
+state 127
 
     (8) function_declaration -> identifier COLON type LPAREN parameter_list RPAREN SEMICOLON .
 
@@ -3681,14 +3727,14 @@ state 123
     $end            reduce using rule 8 (function_declaration -> identifier COLON type LPAREN parameter_list RPAREN SEMICOLON .)
 
 
-state 124
+state 128
 
     (10) parameter_list -> parameter COMMA parameter_list .
 
     RPAREN          reduce using rule 10 (parameter_list -> parameter COMMA parameter_list .)
 
 
-state 125
+state 129
 
     (33) assignment_statement -> identifier LBRACKET_S expression RBRACKET_S ASSIGNMENT expression SEMICOLON .
 
@@ -3786,18 +3832,18 @@ WARNING: shift/reduce conflict for LT in state 78 resolved as shift
 WARNING: shift/reduce conflict for LTE in state 78 resolved as shift
 WARNING: shift/reduce conflict for GT in state 78 resolved as shift
 WARNING: shift/reduce conflict for GTE in state 78 resolved as shift
-WARNING: shift/reduce conflict for ELSE in state 89 resolved as shift
-WARNING: shift/reduce conflict for LBRACKET in state 105 resolved as shift
-WARNING: shift/reduce conflict for IF in state 105 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 105 resolved as shift
-WARNING: shift/reduce conflict for RETURN in state 105 resolved as shift
-WARNING: shift/reduce conflict for IDENTIFIER in state 105 resolved as shift
-WARNING: shift/reduce conflict for LPAREN in state 105 resolved as shift
-WARNING: shift/reduce conflict for NOT in state 105 resolved as shift
-WARNING: shift/reduce conflict for INTEGER in state 105 resolved as shift
-WARNING: shift/reduce conflict for FLOAT in state 105 resolved as shift
-WARNING: shift/reduce conflict for STRING in state 105 resolved as shift
-WARNING: shift/reduce conflict for BOOL in state 105 resolved as shift
-WARNING: shift/reduce conflict for LBRACKET_S in state 105 resolved as shift
+WARNING: shift/reduce conflict for ELSE in state 91 resolved as shift
+WARNING: shift/reduce conflict for LBRACKET in state 108 resolved as shift
+WARNING: shift/reduce conflict for IF in state 108 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 108 resolved as shift
+WARNING: shift/reduce conflict for RETURN in state 108 resolved as shift
+WARNING: shift/reduce conflict for IDENTIFIER in state 108 resolved as shift
+WARNING: shift/reduce conflict for LPAREN in state 108 resolved as shift
+WARNING: shift/reduce conflict for NOT in state 108 resolved as shift
+WARNING: shift/reduce conflict for INTEGER in state 108 resolved as shift
+WARNING: shift/reduce conflict for FLOAT in state 108 resolved as shift
+WARNING: shift/reduce conflict for STRING in state 108 resolved as shift
+WARNING: shift/reduce conflict for BOOL in state 108 resolved as shift
+WARNING: shift/reduce conflict for LBRACKET_S in state 108 resolved as shift
 WARNING: reduce/reduce conflict in state 46 resolved using rule (statement_sequence -> statement)
 WARNING: rejected rule (statement -> <empty>) in state 46

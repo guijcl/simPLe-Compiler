@@ -1,0 +1,13 @@
+function:int (a:Int) {
+	if return 10 {
+		return a;
+	else {
+		return 1;
+	}
+
+	return 5;
+}
+
+main:Int() {
+  return 0;
+}

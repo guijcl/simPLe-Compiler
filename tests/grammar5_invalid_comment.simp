@@ -1,0 +1,12 @@
+max:Int (a:Int, b:Int) {
+  if a > b {
+    return a;
+  }
+  (* dfinghpfiudohajn )
+  return b;
+}
+pi:Int = 3;
+
+main:Int() {
+  return 0;
+}

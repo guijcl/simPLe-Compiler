@@ -1,0 +1,13 @@
+function:void ) {
+	um:bool = True;
+	um:Int = 2;
+	dois:float = 0.2;
+	tres:[Int];
+	tres[0] = 5;
+	quatro:string = "teste";
+	(*cinco:char = 'a';*)
+}
+
+main:Int() {
+  return 0;
+}

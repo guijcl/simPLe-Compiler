@@ -1,0 +1,14 @@
+arr:[String];
+s:string = "a";
+
+max:Int (a:Int, b:Int) {
+  arr[s] = "teste";
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+main:Int() {
+  return 0;
+}

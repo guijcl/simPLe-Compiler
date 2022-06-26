@@ -1,0 +1,13 @@
+n:Int = 2;
+
+max:int (a:Int, b:Int) {
+  n:String = "a";
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+main:Int() {
+  return 0;
+}

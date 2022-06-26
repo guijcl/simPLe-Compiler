@@ -1,0 +1,10 @@
+max:int (a:Int, b:int) {
+  if a && b  {
+    return a;
+  }
+  return b;
+}
+
+main:Int() {
+  return 0;
+}

@@ -1,0 +1,11 @@
+max:int (a:Int, b:Int) {
+  a:Int = 2;
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+main:Int() {
+  return 0;
+}

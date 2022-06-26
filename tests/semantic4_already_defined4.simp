@@ -1,0 +1,15 @@
+max:int (a:Int, b:Int) {
+  n:Int = 2;
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+max:String () {
+  return "teste";
+}
+
+main:Int() {
+  return 0;
+}

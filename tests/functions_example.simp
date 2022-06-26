@@ -1,0 +1,26 @@
+double:Int (n:Int) {
+	return n * n;
+}
+
+helloworld:string() {
+	return "Hello World";
+}
+
+voidteste:void() {
+	s:string = "adeus";
+}
+
+voidteste2:void() {
+	s2:string = helloworld();
+	return voidteste();
+}
+
+max:Int (a:Int, b:Int) {
+	voidteste();
+
+	return double(a);
+}
+
+main:Int() {
+	return 0;
+}

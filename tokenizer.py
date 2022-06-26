@@ -1,5 +1,4 @@
 tokens = (
-	# assignment
 	'IDENTIFIER',
 	'ASSIGNMENT',
 	'SEMICOLON',
@@ -8,20 +7,16 @@ tokens = (
 
 	'COMMENT',
 
-	# functions
 	'RETURN',
 
-	# control flow
 	'IF',
 	'ELSE',
 	'WHILE',
 
-	# logic
 	'AND',
 	'OR',
 	'NOT',
 
-	# comparations
 	'EQUAL',
 	'NEQUAL',
 	'LT',
@@ -29,14 +24,12 @@ tokens = (
 	'LTE',
 	'GTE',
 
-	# operations
 	'PLUS',
 	'MINUS',
 	'TIMES',
 	'DIV',
 	'MOD',
 
-	# other
 	'LBRACKET',
 	'RBRACKET',
 	'LPAREN',
@@ -44,7 +37,6 @@ tokens = (
 	'LBRACKET_S',
 	'RBRACKET_S',
 
-	# types
 	'VOID',
 	'BOOL',
 	'INTEGER',
@@ -52,7 +44,6 @@ tokens = (
 	'ARRAY',
 	'STRING',
 
-	# types names
 	'TVOID',
 	'TBOOL',
 	'TINTEGER',
@@ -60,8 +51,6 @@ tokens = (
 	'TSTRING',
 )
 
-
-# Regular statement rules for tokens
 t_ASSIGNMENT 	= r"\="
 t_SEMICOLON  	= r"\;"
 t_COLON      	= r"\:"
@@ -142,7 +131,6 @@ def t_STRING(t):
 def t_COMMENT(t):
 	r"\(\*[\s\S]*\*\)"
 
-# Ignored characters
 t_ignore = " \t"
 
 def t_newline(t):
@@ -152,49 +140,3 @@ def t_newline(t):
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
-
-
-code = """
-		check:bool (b:bool);
-		(*
-		min:Int (a:Int, b:Int) {
-			return a + b;
-		}
-		*)
-		max:Int (a:Int, b:Int) {
-			if f(a) > arr[b] {
-				return 5 + a;
-			}
-			arr[b];
-			arr2[5];
-			return b + 10;
-		}
-		pi:bool = false;
-	   """
-
-'''if __name__ == '__main__':
-	# Build the lexer
-	from ply import lex
-	import sys 
-	
-	lex.lex()
-
-	"""if len(sys.argv) > 1:
-		f = open(sys.argv[1],"r")
-		data = f.read()
-		f.close()
-	else:
-		data = ""
-		while 1:
-			try:
-				data += input('> ') + "\n"
-			except:
-				break"""
-	
-	lex.input(code)
-	
-	# Tokenize
-	while 1:
-	    tok = lex.token()
-	    if not tok: break      # No more input
-	    print(tok)'''

@@ -1,0 +1,10 @@
+max:int (a:bool, b:bool) {
+  if a + b {
+    return 5;
+  }
+  return 10;
+}
+
+main:Int() {
+  return 0;
+}

@@ -38,12 +38,6 @@ def array_type(node):
    elif "value_types" in node:
       return ("array", array_type(node["value_types"]))
 
-'''def get_array_value_node_type(tup):
-   if type(tup[1]) != tuple:
-      return tup[1]
-   else:
-      return get_array_value_node_type(tup[1])'''
-
 def check(ctx:Context, node):
    if type(node) is list:
       for i in node:
@@ -52,21 +46,21 @@ def check(ctx:Context, node):
    elif node["nt"] == "var_defined":
       name = node["identifier"]
       if ctx.has_var(name):
-         raise TypeError(f"Variavel {name} ja esta definida no contexto")
-      if "value_types" in node: #array
-         return ctx.set_type(name, array_type(node)) #array
+         raise TypeError(f"Variable {name} is already defined in the context")
+      if "value_types" in node:
+         return ctx.set_type(name, array_type(node))
       if node["type"] == "void":
-         raise TypeError(f"Variavel nao pode ser do tipo void")
+         raise TypeError(f"Variable cannot be of void type")
       return ctx.set_type(name, node["type"])
 
-   elif node["nt"] == "var_declared":
+   elif node["nt"] in ["var_declared", "local_var_declared"]:
       name = node["identifier"]
       var_t = node["type"]
       value_t = check(ctx, node["e"])
       if ctx.has_var(name):
-         raise TypeError(f"Variavel {name} ja esta definida no contexto")
+         raise TypeError(f"Variable {name} is already defined in the context")
       if node["type"] == "void":
-         raise TypeError(f"Variavel nao pode ser do tipo void")
+         raise TypeError(f"Variable cannot be of void type")
       if var_t != value_t:
          raise TypeError(f"Type {var_t} and {value_t} don't match.")
       return ctx.set_type(name, node["type"])
@@ -74,10 +68,10 @@ def check(ctx:Context, node):
    elif node["nt"] == "function_declared":
       name = node["identifier"]
       if ctx.has_var(name):
-         raise TypeError(f"Funcao {name} ja esta definida no contexto")
+         raise TypeError(f"Function {name} is already defined in the context")
       assinatura = ()
       if "parameters" in node:
-         assinatura = (node["type"], [node["type"] for par in node["parameters"]])
+         assinatura = (node["type"], [par["type"] for par in node["parameters"]])
       else:
          assinatura = node["type"]
       ctx.set_type(name, assinatura)
@@ -92,10 +86,10 @@ def check(ctx:Context, node):
    elif node["nt"] == "function_defined":
       name = node["identifier"]
       if ctx.has_var(name):
-         raise TypeError(f"Funcao {name} ja esta definida no contexto")
+         raise TypeError(f"Function {name} is already defined in the context")
       assinatura = ()
       if "parameters" in node:
-         assinatura = (node["type"], [node["type"] for par in node["parameters"]])
+         assinatura = (node["type"], [par["type"] for par in node["parameters"]])
       else:
          assinatura = node["type"]
       ctx.set_type(name, assinatura)
@@ -106,8 +100,9 @@ def check(ctx:Context, node):
          for par in node["parameters"]:
             ctx.set_type(par["identifier"], par["type"])
       ctx.enter_scope()
-      for elem in node["body"]:
-         check(ctx, elem)
+      if node["body"] != [None]:
+         for elem in node["body"]:
+            check(ctx, elem)
       ctx.exit_scope()
       ctx.exit_scope()
 
@@ -120,7 +115,7 @@ def check(ctx:Context, node):
          arg_t = check(ctx, arg)
          if arg_t != par_t:
             index = i + 1
-            raise TypeError(f"Argumento #{index} esperava {par_t} mas recebe {arg_t}") 
+            raise TypeError(f"Argument #{index} expected {par_t} but received {arg_t}") 
       return expected_return
 
    elif node["nt"] == "array_call":
@@ -133,13 +128,13 @@ def check(ctx:Context, node):
       name = node["identifier"]
       value_t = check(ctx, node["e"])
       if not ctx.has_var(name):
-         raise TypeError(f"Variavel {name} nao esta definida no contexto")
+         raise TypeError(f"Variable {name} is not defined in the context")
       var_t = ctx.get_type(name)
       if type(var_t) == tuple:
          var_t = var_t[0]
       if var_t != value_t:
          raise TypeError(f"Types {var_t} and {value_t} don't match.")
-      return ctx.set_type(name, (var_t, value_t))
+      return ctx.set_type(name, var_t)
 
    elif node["nt"] == "array_assignment":
       index_t = check(ctx, node["index"])
@@ -154,8 +149,8 @@ def check(ctx:Context, node):
    elif node["nt"] == "if_else":
       cond = node["cond"]
       if check(ctx, cond) != "bool":
-         raise TypeError(f"Condicao do if {cond} nao e boolean")
-      ctx.enter_scope() #outro scope?
+         raise TypeError(f"If condition {cond} is not boolean")
+      ctx.enter_scope()
       for st in node["if"]["body"]:
          check(ctx, st)
       for st in node["else"]["body"]:
@@ -165,7 +160,7 @@ def check(ctx:Context, node):
    elif node["nt"] in ["if", "while"]:
       cond = node["cond"]
       if check(ctx, cond) != "bool":
-         raise TypeError(f"Condicao requer que {cond} seja boolean")
+         raise TypeError(f"Condition requires {cond} to be a boolean")
       ctx.enter_scope()
       for st in node["body"]:
          check(ctx, st)
@@ -180,12 +175,12 @@ def check(ctx:Context, node):
          t = check(ctx, node["ret_e"])
       expected_t = ctx.get_type(RETURN_CODE)
       if t != expected_t:
-         raise TypeError(f"Return esperava {expected_t} mas recebe {t}")
+         raise TypeError(f"Return expected {expected_t} but received {t}")
 
    elif node["nt"] == "not":
       cond = node["e"]
       if check(ctx, cond) != "bool":
-         raise TypeError(f"Condicao requer que {cond} seja boolean") 
+         raise TypeError(f"Condition requires {cond} to be a boolean") 
 
    elif node["nt"] == "expr":
       vt1 = check(ctx, node["left"])
@@ -204,18 +199,20 @@ def check(ctx:Context, node):
             raise TypeError(f"Operation {vt_s} requires booleans.")
 
       if vt_s in ['+', '-', '*', '/']:
-         if vt1 == 'integer' or vt1 == 'float':
+         if vt1 not in ['integer', 'int'] and vt1 != 'float':
             raise TypeError(f"Operation {vt_s} requires integers or floats.")
 
       if vt_s == '%':
-         if vt1 != 'integer':
+         if vt1 not in ['integer', 'int']:
             raise TypeError(f"Operation {vt_s} requires integers.")
       
       if vt_s in ['==', '!=']:
+         if vt1 == "string":
+            raise TypeError(f"Operation {vt_s} requires non strings.")
          return 'bool'
       elif vt_s in ['<=', '>=', '>', '<']:
-         if vt1 == "bool":
-            raise TypeError(f"Operation {vt_s} requires non booleans.")
+         if vt1 == "bool" or vt1 == "string":
+            raise TypeError(f"Operation {vt_s} requires non booleans or strings.")
          return 'bool'
       else:
          return vt1

@@ -1,0 +1,15 @@
+teste:Int (s:String, n:Int, b:Bool) {
+  return 5;
+}
+
+max:int (a:Int, b:Int) {
+  n:Int = teste(5, 5, True);
+  if a > b {
+    return a;
+  }
+  return b;
+}
+
+main:Int() {
+  return 0;
+}
