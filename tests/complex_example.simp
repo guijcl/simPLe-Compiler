@@ -28,7 +28,7 @@ myFunction:bool(num:Int) {
       num = num - (maxnum);
     }
   }
-  return (num % 2) == 1;
+  return !((num % 2) == 1);
 }
 
 uselessDeclaredFunction:float (n:int, f:float, str:string, boolean:bool);

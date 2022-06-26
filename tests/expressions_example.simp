@@ -23,6 +23,7 @@ exp:void(b:bool, n:Int, f:float) {
     b4 = n1 >= n2;
     b5 = n1 > n2;
     b3 = b4 || b5;
+    b3 = !b3;
 
     b4 = n1 <= n2;
     b5 = n1 < n2;

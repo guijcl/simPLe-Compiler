@@ -181,6 +181,7 @@ def check(ctx:Context, node):
       cond = node["e"]
       if check(ctx, cond) != "bool":
          raise TypeError(f"Condition requires {cond} to be a boolean") 
+      return check(ctx, cond)
 
    elif node["nt"] == "expr":
       vt1 = check(ctx, node["left"])

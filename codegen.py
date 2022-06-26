@@ -337,7 +337,10 @@ def codegen(node, ctx:Context, emitter=None):
                 emitter << f"ret {t} {elem[0]}"
 
     elif node["nt"] == "not":
-        pass
+        res = codegen(node["e"], ctx, emitter)
+        rcomp = emitter.get_id()
+        emitter << f"%{rcomp} = xor i1 1, {res[0]}"
+        return ("%" + rcomp, 'i1')
 
     elif node["nt"] == "expr":
         vt1 = codegen(node["left"], ctx, emitter)
