@@ -1,54 +1,64 @@
 # simPLe Compiler
 
-This project was developed for the Compiler Techniques course at FCUL (Faculty of Sciences - University of Lisbon), lectured by [Alcides Fonseca](https://github.com/alcides).
+A compiler implementation for the simPLe programming language, developed for the Compiler Techniques course at FCUL (Faculty of Sciences - University of Lisbon), lectured by [Alcides Fonseca](https://github.com/alcides).
 
 ## Student Information
 
 - **Name:** Guilherme Lopes
 - **Student Number:** fc52761
 
-## Setup
+## Project Overview
 
-Before running the compiler, install all dependencies:
+simPLe is a minimalistic programming language designed for new programmers, featuring C-like syntax with static typing and LLVM code generation. The current implementation has limited support for arrays.
+
+## Setup & Usage
+
+Install dependencies:
 
 ```bash
 ./setup.sh
 ```
 
-## Usage
-
-The compiler can be run in three different ways:
-
-1. Run with a specific test file:
+Run compiler:
 
 ```bash
-python simple.py <file>
+python simple.py <file>        # Compile single file
+python simple.py ok_tests      # Run working tests
+python simple.py failed_tests  # Run error tests
+./run.sh                       # Run complex example
 ```
 
-Replace `<file>` with any file from the `tests` folder.
+## Language Features
 
-2. Run all working tests:
+- Function declarations and definitions
+- Control flow (if/else, while)
+- Variables and assignments
+- Binary operators with C-like precedence
+- Arrays and index access (limited implementation)
+- Comments using (\* ... \*)
+- Integer, Float, Boolean, and String literals
+- Static type checking and inference
+- Error detection (syntax, semantics, types)
+
+## Examples
 
 ```bash
-python simple.py ok_tests
+max:Int (a:Int, b:Int) {
+    if a > b {
+        return a;
+    }
+    return b;
+}
+
+main:Int () {
+    return max(5, 3);
+}
 ```
 
-This executes all tests that demonstrate working features without errors.
+## Implementation Details
 
-3. Run all error test cases:
+- Lexical analysis using Lex
+- Parsing with Yacc
+- LLVM code generation
 
-```bash
-python simple.py failed_tests
-```
-
-This executes tests containing intentionally incorrect simPLe programs to verify error detection.
-
-Alternatively, you can use the provided script to run the most complex example:
-
-```bash
-./run.sh
-```
-
-## Environment
-
-Compiler developed and tested in Ubuntu
+Developed and tested in Ubuntu.
