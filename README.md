@@ -6,6 +6,7 @@ A compiler implementation for the simPLe programming language, developed for the
 
 - **Name:** Guilherme Lopes
 - **Student Number:** fc52761
+- **Final Grade:** 16.5/20
 
 ## Project Overview
 
