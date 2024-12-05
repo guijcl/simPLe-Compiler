@@ -56,5 +56,3 @@ Alternatively, you can use the provided script to run the most complex example:
 # Compiler developed and tested on Ubuntu.
 
 Compiler developed and tested in Ubuntu
-
-> > > > > > > 48ea377839b850e0c843b645fb27025c540fbf37
