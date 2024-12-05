@@ -7,8 +7,6 @@ This project was developed for the Compiler Techniques course at FCUL (Faculty o
 - **Name:** Guilherme Lopes
 - **Student Number:** fc52761
 
-<<<<<<< HEAD
-
 ## Setup
 
 Before running the compiler, install all dependencies:
@@ -52,7 +50,5 @@ Alternatively, you can use the provided script to run the most complex example:
 ```
 
 ## Environment
-
-# Compiler developed and tested on Ubuntu.
 
 Compiler developed and tested in Ubuntu
