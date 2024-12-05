@@ -1,16 +1,54 @@
 # simPLe Compiler
 
-Student: Guilherme Lopes
-Number: fc52761
+This project was developed for the Compiler Techniques course at FCUL (Faculty of Sciences - University of Lisbon), lectured by [Alcides Fonseca](https://github.com/alcides).
 
-Instructions to run the compiler:
-	- The compiler can be run by doing one of the next 3 options:
-  		1. Executing the "python simple.py \<file\>" command, being the "file" one of those in the "tests" folder
-		2. Executing the "python simple.py ok_tests", that runs all the tests that work without errors and all the features developed
-		3. Executing the "python simple.py failed_tests", that runs all the tests that fail due to errors which result on mistakes while writing code on the Simple programming language
-	- We can also run the run.sh file which runs the compiler with the most complex example in the "tests" folder 
+## Student Information
 
-Note: It is necessary to install the dependencies by running the setup.sh file first
+- **Name:** Guilherme Lopes
+- **Student Number:** fc52761
 
+## Setup
 
-Compiler developed and tested in Ubuntu
+Before running the compiler, install all dependencies:
+
+```bash
+./setup.sh
+```
+
+## Usage
+
+The compiler can be run in three different ways:
+
+1. Run with a specific test file:
+
+```bash
+python simple.py <file>
+```
+
+Replace `<file>` with any file from the `tests` folder.
+
+2. Run all working tests:
+
+```bash
+python simple.py ok_tests
+```
+
+This executes all tests that demonstrate working features without errors.
+
+3. Run all error test cases:
+
+```bash
+python simple.py failed_tests
+```
+
+This executes tests containing intentionally incorrect simPLe programs to verify error detection.
+
+Alternatively, you can use the provided script to run the most complex example:
+
+```bash
+./run.sh
+```
+
+## Environment
+
+Compiler developed and tested on Ubuntu.
