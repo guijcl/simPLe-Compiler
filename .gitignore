@@ -1,0 +1,10 @@
+__pycache__/
+parsetab.py
+
+*.ll
+*.s
+*.out
+
+code
+
+.DS_Store
