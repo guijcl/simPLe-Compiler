@@ -1,6 +1,6 @@
 # simPLe Compiler
 
-A compiler implementation for the simPLe programming language, developed for the Compiler Techniques course at FCUL (Faculty of Sciences - University of Lisbon), lectured by [Alcides Fonseca](https://github.com/alcides).
+A compiler implementation for the simPLe programming language, developed for the Compiler Techniques course at FCUL (Faculty of Sciences - University of Lisbon), lectured by Professor [Alcides Fonseca](https://github.com/alcides).
 
 ## Student Information
 
